@@ -2,52 +2,62 @@
   <div class="points" @click="closeModal" :class="{ show: modal }">
     <div class="points__content" @click.stop>
       <span class="h1-mini">Выберите пункт выдачи</span>
-      <p>Текущий зум: {{ currentZoom }}</p>
-      <ul>
-        <li>(top): {{ bounds.top }}</li>
-        <li>(bottom): {{ bounds.bottom }}</li>
-        <li>(left): {{ bounds.left }}</li>
-        <li>(right): {{ bounds.right }}</li>
-      </ul>
+      <div class="kenost-map">
+        <yandex-map
+          ref="yMap"
+          v-model="map"
+          :settings="mapSettings"
+        >
+          <yandex-map-default-features-layer />
+          <yandex-map-default-scheme-layer />
 
-      <yandex-map
-        ref="yMap"
-        v-model="map"
-        :settings="mapSettings"
-        height="500px"
-      >
-        <yandex-map-default-features-layer />
-        <yandex-map-default-scheme-layer />
-
-        <yandex-map-clusterer :grid-size="64" zoom-on-cluster-click>
-          <yandex-map-marker
-            v-for="item in basket_delivery"
-            :key="item.id"
-            :settings="{ coordinates: [Number(item.location.longitude), Number(item.location.latitude)] }"
-          >
-            <div class="marker">
-              <div v-if="currentZoom >= 12" class="marker-label">
-                СДЭК <br /> 149 ₽, 3–7 дней.
+          <yandex-map-clusterer :grid-size="64" zoom-on-cluster-click>
+            <yandex-map-marker
+              v-for="item in basket_delivery.data"
+              :key="item.id"
+              :settings="{ coordinates: [Number(item.location.longitude), Number(item.location.latitude)] }"
+              @click="selectPoint(item)"
+            >
+              <div class="marker">
+                <div v-if="currentZoom >= 12" class="marker-label">
+                  СДЭК <br /> 149 ₽, 3–7 дней.
+                </div>
+                <div class="custom-marker">
+                  <img
+                    src="https://zelenyi-magazin.ru/wa-data/public/shop/products/54/17/1754/images/1865/1865.1200.png"
+                    :alt="item.name"
+                    class="marker-icon"
+                  />
+                </div>
               </div>
-              <div class="custom-marker">
-                <img
-                  src="https://zelenyi-magazin.ru/wa-data/public/shop/products/54/17/1754/images/1865/1865.1200.png"
-                  :alt="item.name"
-                  class="marker-icon"
-                />
+            </yandex-map-marker>
+
+            <template #cluster="{ length }">
+              <div class="cluster">
+                {{ length }}
               </div>
-            </div>
-          </yandex-map-marker>
+            </template>
+          </yandex-map-clusterer>
 
-          <template #cluster="{ length }">
-            <div class="cluster">
-              {{ length }}
+          <yandex-map-listener :settings="{ onUpdate: handleMapUpdate }" />
+        </yandex-map>
+        <div v-if="selectedPoint" class="popup">
+          <div class="popup-header">
+            <strong>{{ selectedPoint?.location?.address }}</strong>
+            <div class="popup-close" @click="selectedPoint = null">✕</div>
+          </div>
+          <div class="popup-body">
+            <div class="pipup-name">{{ selectedPoint?.owner_code == "CDEK"? "СДЭК" : null }}{{ selectedPoint?.type == "PVZ"? ", пункт выдачи заказов" : null }}</div>
+            <div>3–9 дней · 
+              <span class="old-price">189 ₽</span> 
+              <b>78 ₽</b>
             </div>
-          </template>
-        </yandex-map-clusterer>
-
-        <yandex-map-listener :settings="{ onUpdate: handleMapUpdate }" />
-      </yandex-map>
+            <div class="popup-work" v-if="selectedPoint.work_time">{{ selectedPoint.work_time }}</div>
+            <!-- <div>{{ selectedPoint.note }}</div> -->
+          </div>
+          <button class="popup-btn mt-2" @click="choosePoint(selectedPoint)">Выбрать пункт</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -77,12 +87,16 @@
       prop: 'modal',
       event: 'update:modal'
     },
+    point: {
+      prop: 'point',
+      event: 'update:point'
+    },
     data() {
       return {
         map: shallowRef(null),
         mapSettings: {
           location: {
-            center: [37.620393, 55.75396],
+            center: this.basket_delivery?.position?.geo_lat? [Number(this.basket_delivery?.position?.geo_lat), Number(this.basket_delivery?.position?.geo_lon)] : [37.620393, 55.75396],
             zoom: 11
           }
         },
@@ -93,24 +107,12 @@
           left: null,
           right: null
         },
-        items: [
-        {
-          id: 1,
-          mapcoordinates: [37.62, 55.75]
-        },
-        {
-          id: 2,
-          mapcoordinates: [37.621, 55.7505]
-        },
-        {
-          id: 3,
-          mapcoordinates: [37.622, 55.751]
+        selectedPoint: null,
+        point: null,
+        clustererOptions: {
+          preset: 'islands#invertedRedClusterIcons',
+          groupByCoordinates: false
         }
-      ],
-      clustererOptions: {
-        preset: 'islands#invertedRedClusterIcons',
-        groupByCoordinates: false
-      }
       }
     },
     components: {
@@ -126,7 +128,7 @@
     },
     mounted() {
         this.basket_delivery_api({
-          action: "test",
+          action: "points",
         })
     },
     methods: {
@@ -147,8 +149,26 @@
           this.currentZoom = e.location.zoom.toFixed(2)
   
           // Debug log
-          console.log('Зум:', this.currentZoom, 'Границы:', this.bounds)
+          // console.log('Зум:', this.currentZoom, 'Границы:', this.bounds)
         }
+      },
+      selectPoint(item) {
+        if (this.selectedPoint?.id === item.id) {
+          this.selectedPoint = null
+          // нужно чуть подождать, чтобы Vue обработал null → потом вернуть
+          this.$nextTick(() => {
+            this.selectedPoint = item
+          })
+        } else {
+          this.selectedPoint = item
+        }
+      },
+      choosePoint(item) {
+        // console.log('Выбран пункт:', item)
+        // this.point = this.selectedPoint
+        this.$emit('update:point', this.selectedPoint)
+        this.selectedPoint = null
+        this.closeModal()
       }
     }
   }
@@ -201,7 +221,7 @@
   .cluster {
     width: 36px;
     height: 36px;
-    background-color: #F00;
+    background-color: #282828;
     color: white;
     font-weight: bold;
     font-size: 14px;
@@ -211,6 +231,65 @@
     justify-content: center;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   }
+
+  .popup {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  width: 280px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  z-index: 999;
+}
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+.popup-body {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+  margin-right: 4px;
+}
+.popup-btn {
+  width: 100%;
+  background: #282828;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.popup-btn:hover {
+  background: #222;
+}
+
+.kenost-map{
+  height: 500px;
+  position: relative;
+}
+
+.popup-close{
+  cursor: pointer;
+}
+
+.popup-work{
+  margin-top: 8px;
+}
+
+.pipup-name{
+  margin-bottom: 8px;
+  font-weight: bold;
+}
 
 </style>
   

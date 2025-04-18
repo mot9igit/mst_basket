@@ -637,6 +637,7 @@ hr {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 8px;
+        margin-bottom: 20px;
 
 		.dart-btn-radio-mini{
 			width: calc(50% - 4px);
@@ -986,6 +987,9 @@ h3, .h3 {
 .mt-2{
     margin-top: 8px;
 }
+.mt-3{
+    margin-top: 1.5rem;
+}
 
 .dart-input-text input:focus {
     border: 1px solid #E2E2E2;
@@ -1162,3 +1166,87 @@ h3 + *, .h3 + * {
         padding: 32px;
     }
 }
+
+.text-black{
+    color: #282828 !important;
+}
+
+.address{
+    background: rgba(0, 0, 0, 0);
+	pointer-events: none;
+	position: fixed;
+	z-index: 25;
+	width: 100%;
+	height: 100dvh;
+	transition: all 0.3s;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &.show{
+		pointer-events: all;
+		background: rgba(0, 0, 0, 0.50);
+		.address__content{
+			transform: translate(0%);
+			right: 0%;
+            opacity: 1;
+            pointer-events: all;
+		}
+	}
+
+    &__content{
+        max-width: 650px;
+        background: #FFF;
+        width: 100%;
+        max-height: calc(100vh - 160px);
+        border-radius: 12px;
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
+
+        &-scroll{
+            overflow-y: auto;
+            max-height: calc(100vh - 160px);
+            padding: 32px;
+        }
+    }
+}
+
+
+.addressEdit{
+    background: rgba(0, 0, 0, 0);
+	pointer-events: none;
+	position: fixed;
+	z-index: 27;
+	width: 100%;
+	height: 100dvh;
+	transition: all 0.3s;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &.show{
+		pointer-events: all;
+		background: rgba(0, 0, 0, 0.50);
+		.addressEdit__content{
+			transform: translate(0%);
+			right: 0%;
+            opacity: 1;
+            pointer-events: all;
+		}
+	}
+
+    &__content{
+        max-width: 900px;
+        background: #FFF;
+        width: 100%;
+        max-height: calc(100vh - 160px);
+        border-radius: 12px;
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+}
+

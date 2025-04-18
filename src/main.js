@@ -4,8 +4,11 @@ import { createYmaps } from 'vue-yandex-maps'
 import { createApp } from 'vue'
 import store from './store'
 import App from './App.vue'
+import Button from './Button.vue'
 
 const app = createApp(App)
+
+const button = createApp(Button)
 
 app
 .use(store)
@@ -14,3 +17,7 @@ app
     lang: 'ru_RU',
 }))
 .mount('#app')
+
+button
+.use(store)
+.mount("#mst-button")

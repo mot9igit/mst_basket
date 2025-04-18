@@ -168,9 +168,22 @@
             </a>
           </div>
 
+          <h3 v-if="this.deliveryMethod == 2 || this.deliveryMethod == 3">Адрес доставки</h3>
+          <div v-if="this.deliveryMethod == 2">
+            <a @click="this.modalAdress = true" class="dart-btn dart-btn-choice mt-2 dart-modal-toggler" data-dart-modal="dm-my-addres" style="width: 100%;">
+              <p v-if="!this.courier" class="text_address">Выбрать адрес доставки</p>
+              <svg v-if="!this.courier" class="styles-module-icon-JSbNo" data-icon-name="ArrowRight" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="height: 20px;"><path d="M6.91412 3.57408C6.58869 3.89952 6.58869 4.42715 6.91412 4.75259L12.1582 9.99667L6.91412 15.2407C6.58869 15.5662 6.58869 16.0938 6.91412 16.4193C7.23956 16.7447 7.7672 16.7447 8.09263 16.4193L13.926 10.5859C14.2514 10.2605 14.2514 9.73285 13.926 9.40741L8.09263 3.57408C7.7672 3.24864 7.23956 3.24864 6.91412 3.57408Z"></path></svg>
+              <svg v-else class="styles-module-icon-JSbNo" data-icon-name="CheckRound" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="height: 20px;"><path d="M18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2C14.4183 2 18 5.58172 18 10ZM14.5657 8.16569C14.8781 7.85327 14.8781 7.34673 14.5657 7.03431C14.2533 6.7219 13.7467 6.7219 13.4343 7.03431L9.2 11.2686L7.36568 9.43431C7.05327 9.12189 6.54673 9.12189 6.23431 9.43431C5.9219 9.74673 5.9219 10.2533 6.23431 10.5657L8.63432 12.9657C8.94673 13.2781 9.45327 13.2781 9.76569 12.9657L14.5657 8.16569Z"></path></svg>
+            </a>
+          </div>
+
+
           <div v-if="this.deliveryMethod == 3">
             <a @click="this.modalPoints = true" class="dart-btn dart-btn-choice mt-2 dart-modal-toggler" data-dart-modal="dm-my-addres" style="width: 100%;">
-              <p class="text_address">Выбрать пункт выдачи</p>
+              <p v-if="!this.point" class="text_address">Выбрать пункт выдачи</p>
+              <p v-else class="text_address text-black">{{ this.point?.owner_code == "CDEK"? "СДЭК" : null }}, {{ this.point?.location?.address }}</p>
+              <svg v-if="!this.point" class="styles-module-icon-JSbNo" data-icon-name="ArrowRight" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="height: 20px;"><path d="M6.91412 3.57408C6.58869 3.89952 6.58869 4.42715 6.91412 4.75259L12.1582 9.99667L6.91412 15.2407C6.58869 15.5662 6.58869 16.0938 6.91412 16.4193C7.23956 16.7447 7.7672 16.7447 8.09263 16.4193L13.926 10.5859C14.2514 10.2605 14.2514 9.73285 13.926 9.40741L8.09263 3.57408C7.7672 3.24864 7.23956 3.24864 6.91412 3.57408Z"></path></svg>
+              <svg v-else class="styles-module-icon-JSbNo" data-icon-name="CheckRound" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="height: 20px;"><path d="M18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2C14.4183 2 18 5.58172 18 10ZM14.5657 8.16569C14.8781 7.85327 14.8781 7.34673 14.5657 7.03431C14.2533 6.7219 13.7467 6.7219 13.4343 7.03431L9.2 11.2686L7.36568 9.43431C7.05327 9.12189 6.54673 9.12189 6.23431 9.43431C5.9219 9.74673 5.9219 10.2533 6.23431 10.5657L8.63432 12.9657C8.94673 13.2781 9.45327 13.2781 9.76569 12.9657L14.5657 8.16569Z"></path></svg>
             </a>
           </div>
 
@@ -307,14 +320,16 @@
       </div>
     </div>
   </div>
-  <Points :modal="modalPoints"  @update:modal="this.modalPoints = $event"/>
-  <PointsTest />
+  <Points :modal="modalPoints"  @update:modal="this.modalPoints = $event" @update:point="this.point = $event"/>
+  <Adress :modal="modalAdress" @update:modal="this.modalAdress = $event" @update:address="this.address = $event"/>
+  {{ address }}
+  {{ point }}
 </template>
 
 <script>
 import Counter from "./Counter.vue";
 import Points from "./Points.vue"
-import PointsTest from "./PointsTest.vue"
+import Adress from "./Adress.vue"
 import { mapActions, mapGetters } from "vuex";
 
 export default {
@@ -322,7 +337,7 @@ export default {
   components: {
     Counter,
     Points,
-    PointsTest
+    Adress
   },
   props: {
     modal: {
@@ -336,8 +351,11 @@ export default {
   },
   data() {
     return {
-      modalPoints: true,
+      modalPoints: false,
+      modalAdress: true,
       deliveryMethod: 1,
+      point: null,
+      address: null,
       orderData: {
         receiver: "",
         email: "",
