@@ -1,68 +1,99 @@
 <template>
-  <div>
-    <yandex-map
-      v-model="map"
-      :settings="{
-        location: {
-          center: [37.617644, 55.755819],
-          zoom: 9,
-        },
-        behaviors: ['drag', 'scrollZoom'],
-      }"
-      width="100%"
-      height="500px"
-    >
-      <yandex-map-default-scheme-layer />
-      <yandex-map-default-features-layer />
-      <yandex-map-default-marker :settings="{ coordinates: [37.617644, 55.755819] }" />
+  <yandex-map :settings="mapSettings" style="height: 500px">
+    <yandex-map-default-scheme-layer />
+    <yandex-map-default-features-layer />
 
-      <!-- Слушаем изменения карты -->
-      <yandex-map-listener :settings="{ onUpdate: handleUpdate }" />
-    </yandex-map>
+    <yandex-map-clusterer :grid-size="64" zoom-on-cluster-click>
+      <yandex-map-marker
+        v-for="item in items"
+        :key="item.id"
+        :settings="{ coordinates: item.mapcoordinates }"
+      >
+        <div class="marker">
+          <img
+            src="https://zelenyi-magazin.ru/wa-data/public/shop/products/54/17/1754/images/1865/1865.1200.png"
+            class="marker-icon"
+            alt="СДЭК"
+          />
+        </div>
+      </yandex-map-marker>
 
-    <div style="margin-top: 20px;">
-      <p>Север (top): {{ bounds.top }}</p>
-      <p>Юг (bottom): {{ bounds.bottom }}</p>
-      <p>Запад (left): {{ bounds.left }}</p>
-      <p>Восток (right): {{ bounds.right }}</p>
-      <p>Масштаб (zoom): {{ zoom }}</p>
-    </div>
-  </div>
+      <!-- кастомный кластер -->
+      <template #cluster="{ length }">
+        <div class="cluster">
+          {{ length }}
+        </div>
+      </template>
+    </yandex-map-clusterer>
+  </yandex-map>
 </template>
 
-<script setup>
-import { shallowRef, reactive, ref } from 'vue';
+<script>
 import {
   YandexMap,
   YandexMapDefaultSchemeLayer,
   YandexMapDefaultFeaturesLayer,
-  YandexMapDefaultMarker,
-  YandexMapListener,
-} from 'vue-yandex-maps';
+  YandexMapMarker,
+  YandexMapClusterer
+} from 'vue-yandex-maps'
 
-const map = shallowRef(null);
-
-const bounds = reactive({
-  top: null,
-  bottom: null,
-  left: null,
-  right: null,
-});
-
-const zoom = ref(null);
-
-function handleUpdate(e) {
-  if (e.type === 'update' && e.location && e.location.bounds) {
-    const [[left, top], [right, bottom]] = e.location.bounds;
-
-    bounds.top = top.toFixed(6);
-    bounds.bottom = bottom.toFixed(6);
-    bounds.left = left.toFixed(6);
-    bounds.right = right.toFixed(6);
-
-    zoom.value = e.location.zoom.toFixed(2);
-
-    console.log('Границы и зум обновлены:', bounds, 'Zoom:', zoom.value);
+export default {
+  components: {
+    YandexMap,
+    YandexMapDefaultSchemeLayer,
+    YandexMapDefaultFeaturesLayer,
+    YandexMapMarker,
+    YandexMapClusterer
+  },
+  data() {
+    return {
+      mapSettings: {
+        location: {
+          center: [37.620393, 55.75396],
+          zoom: 11
+        }
+      },
+      items: [
+        { id: 1, mapcoordinates: [37.62, 55.75] },
+        { id: 2, mapcoordinates: [37.621, 55.7505] },
+        { id: 3, mapcoordinates: [37.622, 55.751] },
+        { id: 4, mapcoordinates: [37.623, 55.7515] },
+        { id: 5, mapcoordinates: [37.624, 55.752] }
+      ]
+    }
   }
 }
 </script>
+
+<style scoped>
+.marker {
+  width: 34px;
+  height: 34px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.marker-icon {
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+.cluster {
+  width: 40px;
+  height: 40px;
+  background-color: #ff4b4b;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+</style>
