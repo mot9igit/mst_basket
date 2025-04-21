@@ -69,6 +69,20 @@ export default {
             .catch(error => {
             })
         },
+        marketplace_response_api ({ commit }, data) {
+            return Axios('/rest/marketplace', {
+                method: 'POST',
+                data: data,
+                headers: {
+                    'Access-Control-Allow-Origin': '*'
+                }
+            })
+            .then((response) => {
+                return response
+            })
+            .catch(error => {
+            })
+        },
     },
     mutations: {
         SET_BASKET_TO_VUEX: (state, data) => {

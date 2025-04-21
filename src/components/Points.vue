@@ -13,14 +13,14 @@
 
           <yandex-map-clusterer :grid-size="64" zoom-on-cluster-click>
             <yandex-map-marker
-              v-for="item in basket_delivery.data"
+              v-for="item in basket_delivery.cdek.data"
               :key="item.id"
               :settings="{ coordinates: [Number(item.location.longitude), Number(item.location.latitude)] }"
               @click="selectPoint(item)"
             >
               <div class="marker">
                 <div v-if="currentZoom >= 12" class="marker-label">
-                  СДЭК <br /> 149 ₽, 3–7 дней.
+                  СДЭК <br /> {{Number(basket_delivery.cdek.cost.price).toLocaleString('ru')}} ₽, {{pluralizeDays(basket_delivery.cdek.cost.time)}}.
                 </div>
                 <div class="custom-marker">
                   <img
@@ -48,9 +48,9 @@
           </div>
           <div class="popup-body">
             <div class="pipup-name">{{ selectedPoint?.owner_code == "CDEK"? "СДЭК" : null }}{{ selectedPoint?.type == "PVZ"? ", пункт выдачи заказов" : null }}</div>
-            <div>3–9 дней · 
-              <span class="old-price">189 ₽</span> 
-              <b>78 ₽</b>
+            <div v-if="selectedPoint?.owner_code == 'CDEK'">{{pluralizeDays(basket_delivery.cdek.cost.time)}} · 
+              <span class="old-price">{{(Number(basket_delivery.cdek.cost.price) * 1.2).toLocaleString('ru')}} ₽</span> 
+              <b>{{(basket_delivery.cdek.cost.price).toLocaleString('ru')}} ₽</b>
             </div>
             <div class="popup-work" v-if="selectedPoint.work_time">{{ selectedPoint.work_time }}</div>
             <!-- <div>{{ selectedPoint.note }}</div> -->
@@ -166,10 +166,24 @@
       choosePoint(item) {
         // console.log('Выбран пункт:', item)
         // this.point = this.selectedPoint
-        this.$emit('update:point', this.selectedPoint)
+        console.log(this.selectedPoint)
+        let cost = null;
+        if(this.selectedPoint.owner_code == "CDEK"){
+          cost = this.basket_delivery.cdek.cost
+        }
+        this.$emit('update:point', {point: this.selectedPoint, cost: cost})
         this.selectedPoint = null
         this.closeModal()
+      },
+      pluralizeDays(n) {
+        const mod10 = n % 10;
+        const mod100 = n % 100;
+
+        if (mod10 === 1 && mod100 !== 11) return `${n} день`;
+        if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return `${n} дня`;
+        return `${n} дней`;
       }
+
     }
   }
   </script>
@@ -268,6 +282,7 @@
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
+  font-size: 14px;
 }
 .popup-btn:hover {
   background: #222;

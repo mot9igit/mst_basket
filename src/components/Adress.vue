@@ -10,18 +10,26 @@
 						</div>
 						<div class="kenost-address__text">
 							<p class="kenost-address__text-big">{{ item.city }}, {{item.street}}, {{item.house}}</p>
-							<p><span v-if="item.room">Квартира {{item.room}},</span> <span v-if="item.entrance">подъезд {{item.entrance}},</span><span v-if="item.floor"> этаж {{item.floor}}</span></p>
+							<p><span v-if="item.room">Квартира {{item.room}},</span> <span v-if="item.entrance">подъезд {{item.entrance}},</span><span v-if="item.floor"> этаж {{item.floor}},</span><span v-if="item.floor"> домофон {{item.doorphone}}</span></p>
 						</div>
 						<div class="kenost-address__action" @click.stop>
-							<div class="kenost-address__button">
+							<button :disabled="this.loadingIds.includes(item.id)" :class="{'loading': this.loadingIds.includes(item.id)}" class="kenost-address__button" @click="() => {
+								this.editAdressData = item
+								this.editModal = true
+							}">
+								<span class="kenost-spinner"></span>
 								<svg viewBox="0 0 24 24" name="edit" class="css-1cf5ojg"><path d="M17.96 2.54a1 1 0 0 0-1.42 0l-1.79 1.8 4.91 4.91 1.8-1.8a1 1 0 0 0 0-1.4l-3.5-3.5Zm.29 8.12-4.91-4.91-9.05 9.04a1 1 0 0 0-.23.37l-2 5.5a1 1 0 0 0 1.23 1.3l5-1.5a1 1 0 0 0 .42-.25l9.54-9.55Z"></path></svg>
-							</div>
-							<div class="kenost-address__button">
+							</button>
+							<button :disabled="this.loadingIds.includes(item.id)" :class="{'loading': this.loadingIds.includes(item.id)}" class="kenost-address__button" @click="deleteAddress(item)">
+								<span class="kenost-spinner"></span>
 								<svg viewBox="0 0 24 24" name="delete" class="css-1cf5ojg"><path d="M17 3h3c.6 0 1 .4 1 1v2H3V4c0-.6.4-1 1-1h3l.7-1.4c.2-.4.5-.6.9-.6h6.8c.4 0 .7.3.9.6L17 3ZM5 8l.9 13.1c.1.5.5.9 1.1.9h10.1c.5 0 1-.4 1-.9L19 8H5Z"></path></svg>
-							</div>
+							</button>
 						</div>
 					</div>
-					<button class="popup-btn-two mt-2">
+					<button class="popup-btn-two mt-2" @click="() => {
+						this.editAdressData = null
+						this.editModal = true
+					}">
 						<!-- <svg viewBox="0 0 14 20" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_149_2063)"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.29968 11.6999L6.29969 16.7H7.69969L7.69968 11.6999H12.6998V10.2999H7.69968L7.69968 5.29999H6.29968L6.29968 10.2999H1.2998V11.6999H6.29968Z"></path></g><defs><clipPath id="clip0_149_2063"><rect width="14" height="20"></rect></clipPath></defs></svg> -->
 						Добавить новый адресс
 					</button>
@@ -29,7 +37,8 @@
 			</div>
     </div>
   </div>
-	<AdressEdit :modal="editModal" @update:modal="this.editModal = $event" :address="editAdressData"/>
+  {{ this.editAdressData }}
+	<AdressEdit :modal="editModal" @update:modal="this.editModal = $event" :address="this.editAdressData"/>
 </template>
 
 <script>
@@ -53,10 +62,11 @@ export default {
   },
   data() {
     return {
-			selectAddress: null,
-			editModal: true,
-			editAdressData: null
-		};
+		selectAddress: null,
+		editModal: false,
+		editAdressData: null,
+		loadingIds: []
+	};
   },
   components: { AdressEdit },
   computed: {
@@ -68,14 +78,27 @@ export default {
     });
   },
   methods: {
-    ...mapActions(["basket_my_address_api"]),
+    ...mapActions(["basket_my_address_api", "marketplace_response_api"]),
     closeModal() {
       this.$emit("update:modal", false);
     },
-		chooseAddress(item) {
-			this.$emit('update:address', this.selectAddress)
-			this.closeModal()
-		}
+	chooseAddress(item) {
+		this.$emit('update:address', this.selectAddress)
+		this.closeModal()
+	},
+	deleteAddress(item){
+		this.loadingIds.push(item.id)
+		this.marketplace_response_api({
+			action: "address/delete",
+			id: item.id
+		}).then(() => {
+			this.basket_my_address_api({
+				action: "address/get",
+			})
+		}).finally(() => {
+			this.loadingIds = this.loadingIds.filter(el => el !== item.id);
+		});
+	}
   },
 	watch: {
 		basket_address(newVal) {
@@ -127,12 +150,20 @@ export default {
 }
 
 .kenost-address__text-big{
-	color: #000;
-	font-size: 18px;
-	font-weight: 400;
-	line-height: 22px;
+	color: #000 !important;
+	font-size: 18px !important;
+	font-weight: 400 !important;
+	line-height: 22px !important;
 	transition: all 0.3s;
 }
+
+.kenost-address__text p{
+	color: rgb(117, 117, 117);
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 20px;
+}
+
 
 .kenost-address__check-null{
 	width: 16px;
@@ -163,6 +194,36 @@ export default {
 	cursor: pointer;
 }
 
+/* Спиннер */
+.kenost-spinner {
+	width: 16px;
+	height: 16px;
+	border: 2px solid #ccc;
+	border-top: 2px solid #000;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+	display: none;
+}
+
+.kenost-address__button.loading{
+	cursor: not-allowed;
+}
+
+/* Показывать спиннер, если кнопка в состоянии загрузки */
+.kenost-address__button.loading .kenost-spinner {
+	display: inline-block;
+}
+
+.kenost-address__button.loading svg {
+	display: none;
+}
+
+/* Анимация вращения */
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
 .kenost-address__button svg{
 	width: 16px;
 	height: 16px;
@@ -179,6 +240,7 @@ export default {
   cursor: pointer;
 	min-height: 40px;
 	transition: all 0.3s;
+	font-size: 14px;
 }
 .popup-btn:hover {
   background: #EC0000;

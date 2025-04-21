@@ -18,7 +18,7 @@
               <div class="basket-container__info">
                 <div class="basket-container__title">
                   <a :href="product.uri">{{product.pagetitle}}</a>
-                  <div @click="deleteProduct(product.key)" class="btn-close link-no-style"><i class="d_icon d_icon-close"></i></div>
+                  <div @click="deleteProduct(product.key)" class="btn-close link-no-style"></div>
                 </div>
                 <p class="basket-container__article">{{product?.article}}</p>
                 <div class="basket-container__count">
@@ -106,7 +106,7 @@
     },
     mounted() {
       this.get_basket_api({
-        action: "get"
+        action: "basket/get"
       }).finally(() => this.loading_basket = false)
     },
     updated() {
@@ -120,7 +120,7 @@
       addBasket(product_id){
         this.loading = true
         this.basket_api({
-          action: 'add',
+          action: 'basket/add',
           product_id: product_id,
           count: 1,
           store: 48,
@@ -129,7 +129,7 @@
       },
       handleCountChange(count, key){
         this.basket_api({
-          action: 'change',
+          action: 'basket/change',
           key: key,
           count: count
         })
@@ -138,14 +138,14 @@
       deleteProduct(key){
         this.loading = true
         this.basket_api({
-          action: 'delete',
+          action: 'basket/delete',
           key: key,
         }).finally(() => {this.loading = false})
       },
       clearBasket(key){
         this.loading = true
         this.basket_api({
-          action: 'delete'
+          action: 'basket/delete'
         }).finally(() => {this.loading = false})
       }
     },

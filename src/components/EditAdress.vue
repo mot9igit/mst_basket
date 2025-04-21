@@ -49,7 +49,14 @@
 					<input type="text" v-model="dataAdress.doorphone" placeholder="Домофон" />
 				</div>
 			</div>
-			<button :disabled="!this.dataAdress.adress" class="popup-btn mt-2" @click="save()">Сохранить</button>
+			<button :disabled="!this.dataAdress.adress || this.loading" class="popup-btn mt-2" :class="{'loading': this.loading}" @click="save()">
+				<span class="dot-loader-none">Сохранить</span>
+				<span class="dot-loader">
+					<span></span>
+					<span></span>
+					<span></span>
+				</span>
+			</button>
 		  </div>
   
 		  <div class="kenost-select-address__half">
@@ -83,17 +90,6 @@
 						</svg>
 					</button>
 				</div>
-				
-  
-			  <!-- Фиксированный маркер по центру -->
-			  <!-- <div class="map-pin-center">
-				<img
-				  src="https://cdn-icons-png.flaticon.com/512/684/684908.png"
-				  alt="Маркер"
-				  width="32"
-				  height="32"
-				/>
-			  </div> -->
 			</div>
 		  </div>
 		</div>
@@ -133,7 +129,13 @@
 		  room: '',
 		  floor: '',
 		  entrance: '',
-		  doorphone: ''
+		  doorphone: '',
+		  postal_code: '',
+		  country: '',
+		  region: '',
+		  city: '',
+		  street: '',
+		  house: ''
 		},
 		mapSettings: {
 		  location: {
@@ -142,6 +144,7 @@
 		  },
 		  behaviors: ['drag', 'dblClickZoom'] // отключили scrollZoom
 		},
+		loading: false,
 		centerCoords: [37.620393, 55.75396],
 		geocodeTimeout: null,
 		movement: false,
@@ -164,32 +167,54 @@
 	  
 	},
 	methods: {
-	  ...mapActions(['']),
-	  closeModal() {
-		this.$emit('update:modal', false)
-	  },
-	  chooseAddress(item) {
-		this.$emit('update:address', this.selectAddress)
-		this.closeModal()
-	  },
-	  save(){
-		let data = this.dataAdress
-		if(this.address){
-			data.id = this.address.id
-		}
-		data.coordinates = this.centerCoords
-		console.log(data)
-	  },
-	  zoomIn() {
-		const newZoom = Math.min(this.mapSettings.location.zoom + 1, 19)
-		this.mapSettings.location.zoom = newZoom
+		...mapActions(['marketplace_response_api', "basket_my_address_api"]),
+		closeModal() {
+			this.$emit('update:modal', false)
 		},
-
+		chooseAddress(item) {
+			this.$emit('update:address', this.selectAddress)
+			this.closeModal()
+		},
+	  	save(){
+			this.loading = true
+			let data = this.dataAdress
+			if(this.address){
+				data.id = this.address.id
+			}
+			data.coordinates = this.centerCoords
+			this.marketplace_response_api({
+				action: "address/edit",
+				data
+			}).then((res) => {
+				this.closeModal()
+				this.basket_my_address_api({
+					action: "address/get",
+				})
+				this.dataAdress.postal_code = ""
+				this.dataAdress.adress = ""
+				this.dataAdress.room = ""
+				this.dataAdress.floor = ""
+				this.dataAdress.entrance = ""
+				this.dataAdress.doorphone = ""
+				this.dataAdress.country = ""
+				this.dataAdress.region = ""
+				this.dataAdress.city = ""
+				this.dataAdress.street = ""
+				this.dataAdress.house = ""
+				this.centerCoords = [37.620393, 55.75396]
+			}).finally(() => {
+				this.loading = false
+			});
+	  	},
+	  	zoomIn() {
+			const newZoom = Math.min(this.mapSettings.location.zoom + 1, 19)
+			this.mapSettings.location.zoom = newZoom
+		},
 		zoomOut() {
-		const newZoom = Math.max(this.mapSettings.location.zoom - 1, 2)
-		this.mapSettings.location.zoom = newZoom
+			const newZoom = Math.max(this.mapSettings.location.zoom - 1, 2)
+			this.mapSettings.location.zoom = newZoom
 		},
-	  async locateMe() {
+	  	async locateMe() {
 			if (!navigator.geolocation) {
 			alert("Геолокация не поддерживается вашим браузером.")
 			return
@@ -241,16 +266,34 @@
 
 			// Устанавливаем адрес только если найден дом
 			if (geoObject && kind === 'house') {
-			this.dataAdress.adress = geoObject.metaDataProperty.GeocoderMetaData.text
+				this.dataAdress.postal_code = geoObject.metaDataProperty.GeocoderMetaData.Address.postal_code;
+				let dataAdressYmaps = geoObject.metaDataProperty.GeocoderMetaData.Address.Components
+
+				// Берём последний элемент по нужному kind
+				const findLastByKind = (kind) => {
+					const found = dataAdressYmaps.filter(item => item.kind === kind);
+					return found.length ? found[found.length - 1].name : undefined;
+				};
+
+				this.dataAdress.country = findLastByKind('country');
+				this.dataAdress.region  = findLastByKind('province');
+				this.dataAdress.city    = findLastByKind('locality');
+				this.dataAdress.street  = findLastByKind('street');
+				this.dataAdress.house   = findLastByKind('house');
+
+				let getAddress = geoObject.metaDataProperty.GeocoderMetaData.text
+				getAddress = getAddress.replace("Россия, ", '')
+				this.dataAdress.adress = getAddress
+				console.log(this.dataAdress)
 			} else {
-			this.dataAdress.adress = ""
+				this.dataAdress.adress = ""
 			}
 
 		} catch (error) {
 			console.error("Ошибка при геокодинге:", error)
 		}
 		},
-	  selectSuggestedAddress(item) {
+	  	selectSuggestedAddress(item) {
 			this.dataAdress.adress = item.text
 			this.centerCoords = [item.coordinates[0], item.coordinates[1]]
 			this.mapSettings.location.center = [item.coordinates[0], item.coordinates[1]]
@@ -326,18 +369,42 @@
 	}
 	},
 	watch: {
-	// 	address: {
-	// 	handler(newVal) {
-	// 		console.log("address changed", newVal)
-	// 		if (!newVal) {
-	// 			this.locateMe().then(() => {
-	// 				this.dataAdress.adress = ""
-	// 			})
-	// 		}
-	// 	},
-	// 	deep: true,
-	// 	immediate: true // если хочешь, чтобы сработал при первом рендере
-	// }
+		address: {
+			handler(newVal) {
+				console.log(newVal)
+				if (newVal) {
+					this.dataAdress.postal_code = newVal.postal_code
+					this.dataAdress.adress = newVal.text_address,
+					this.dataAdress.room = newVal.room,
+					this.dataAdress.floor = newVal.floor,
+					this.dataAdress.entrance = newVal.entrance,
+					this.dataAdress.doorphone = newVal.doorphone
+
+					this.dataAdress.country = newVal.country
+					this.dataAdress.region = newVal.region
+					this.dataAdress.city = newVal.city
+					this.dataAdress.street = newVal.street
+					this.dataAdress.house = newVal.house
+
+					this.setCoordinatesFromAddress()
+				} else {
+					this.dataAdress.postal_code = ""
+					this.dataAdress.adress = ""
+					this.dataAdress.room = ""
+					this.dataAdress.floor = ""
+					this.dataAdress.entrance = ""
+					this.dataAdress.doorphone = ""
+					this.dataAdress.country = ""
+					this.dataAdress.region = ""
+					this.dataAdress.city = ""
+					this.dataAdress.street = ""
+					this.dataAdress.house = ""
+					this.centerCoords = [37.620393, 55.75396]
+				}
+			},
+			deep: true,
+			immediate: true // если хочешь, чтобы сработал при первом рендере
+		}
 	}
   }
   </script>
@@ -510,11 +577,11 @@
 		transition: all 0.3s;
 	}
 
-	.map-zoom-buttons-plus img{
+	.map-zoom-buttons-plus svg{
 		width: 20px;
 		height: 20px;
 	}
-	.map-zoom-buttons-minus img{
+	.map-zoom-buttons-minus svg{
 		width: 20px;
 		height: 20px;
 	}
@@ -585,6 +652,7 @@
 			transition: all 0.3s;
 			position: absolute;
 			bottom: 32px;
+			font-size: 14px;
 		}
 		
 		.popup-btn:disabled{
@@ -595,5 +663,56 @@
 		.popup-btn:hover {
 			background: #EC0000;
 		}
+
+		
+.popup-btn.loading{
+    cursor: not-allowed;
+    opacity: 1;
+
+    .dot-loader-none{
+        opacity: 0;
+    }
+}
+
+.dot-loader {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+}
+
+.popup-btn.loading .dot-loader {
+    display: flex;
+    gap: 4px;
+}
+
+.dot-loader span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+    animation: dot-pulse 1.4s infinite ease-in-out both;
+}
+
+.dot-loader span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.dot-loader span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes dot-pulse {
+    0%, 100% {
+        transform: scale(0.6);
+        opacity: 0.4;
+      }
+      50% {
+        transform: scale(1);
+        opacity: 1;
+      }
+}
   </style>
   
