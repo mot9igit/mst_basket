@@ -115,7 +115,8 @@
     methods: {
       ...mapActions([
         'get_basket_api',
-        'basket_api'
+        'basket_api',
+        "delivery_courier_api"
       ]),
       addBasket(product_id){
         this.loading = true
@@ -148,9 +149,6 @@
           action: 'basket/delete'
         }).finally(() => {this.loading = false})
       }
-    },
-    watch: {
-      
     }
 }
 </script>

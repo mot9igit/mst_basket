@@ -13,18 +13,18 @@
 
           <yandex-map-clusterer :grid-size="64" zoom-on-cluster-click>
             <yandex-map-marker
-              v-for="item in basket_delivery.cdek.data"
+              v-for="item in delivery_points?.cdek?.data"
               :key="item.id"
               :settings="{ coordinates: [Number(item.location.longitude), Number(item.location.latitude)] }"
               @click="selectPoint(item)"
             >
               <div class="marker">
                 <div v-if="currentZoom >= 12" class="marker-label">
-                  СДЭК <br /> {{Number(basket_delivery.cdek.cost.price).toLocaleString('ru')}} ₽, {{pluralizeDays(basket_delivery.cdek.cost.time)}}.
+                  СДЭК <br /> {{Number(delivery_points.cdek.cost.price).toLocaleString('ru')}} ₽, {{pluralizeDays(delivery_points.cdek.cost.time)}}.
                 </div>
                 <div class="custom-marker">
                   <img
-                    src="https://zelenyi-magazin.ru/wa-data/public/shop/products/54/17/1754/images/1865/1865.1200.png"
+                    src="/cdek.png"
                     :alt="item.name"
                     class="marker-icon"
                   />
@@ -48,9 +48,9 @@
           </div>
           <div class="popup-body">
             <div class="pipup-name">{{ selectedPoint?.owner_code == "CDEK"? "СДЭК" : null }}{{ selectedPoint?.type == "PVZ"? ", пункт выдачи заказов" : null }}</div>
-            <div v-if="selectedPoint?.owner_code == 'CDEK'">{{pluralizeDays(basket_delivery.cdek.cost.time)}} · 
-              <span class="old-price">{{(Number(basket_delivery.cdek.cost.price) * 1.2).toLocaleString('ru')}} ₽</span> 
-              <b>{{(basket_delivery.cdek.cost.price).toLocaleString('ru')}} ₽</b>
+            <div v-if="selectedPoint?.owner_code == 'CDEK'">{{pluralizeDays(delivery_points.cdek.cost.time)}} · 
+              <span class="old-price">{{(Number(delivery_points.cdek.cost.price) * 1.2).toLocaleString('ru')}} ₽</span> 
+              <b>{{(delivery_points.cdek.cost.price).toLocaleString('ru')}} ₽</b>
             </div>
             <div class="popup-work" v-if="selectedPoint.work_time">{{ selectedPoint.work_time }}</div>
             <!-- <div>{{ selectedPoint.note }}</div> -->
@@ -96,7 +96,7 @@
         map: shallowRef(null),
         mapSettings: {
           location: {
-            center: this.basket_delivery?.position?.geo_lat? [Number(this.basket_delivery?.position?.geo_lat), Number(this.basket_delivery?.position?.geo_lon)] : [37.620393, 55.75396],
+            center: this.delivery_points?.position?.geo_lat? [Number(this.delivery_points?.position?.geo_lat), Number(this.delivery_points?.position?.geo_lon)] : [37.620393, 55.75396],
             zoom: 11
           }
         },
@@ -124,15 +124,15 @@
       YandexMapListener
     },
     computed: {
-        ...mapGetters(["basket_delivery"]),
+        ...mapGetters(["delivery_points"]),
     },
     mounted() {
-        this.basket_delivery_api({
+        this.delivery_points_api({
           action: "points",
         })
     },
     methods: {
-    ...mapActions(["basket_delivery_api"]),
+    ...mapActions(["delivery_points_api"]),
       closeModal() {
         this.$emit('update:modal', false)
       },
@@ -168,10 +168,12 @@
         // this.point = this.selectedPoint
         console.log(this.selectedPoint)
         let cost = null;
+        let code = null;
         if(this.selectedPoint.owner_code == "CDEK"){
-          cost = this.basket_delivery.cdek.cost
+          cost = this.delivery_points.cdek.cost
+          code = "cdek"
         }
-        this.$emit('update:point', {point: this.selectedPoint, cost: cost})
+        this.$emit('update:point', {point: this.selectedPoint, cost: cost, code: code})
         this.selectedPoint = null
         this.closeModal()
       },

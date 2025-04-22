@@ -5,7 +5,7 @@
 					<span class="h1-mini">Выберите адрес доставки</span>
 					<div class="kenost-address" v-for="item in basket_address" @click="this.selectAddress = item">
 						<div class="kenost-address__icon">
-							<svg v-if="this.selectAddress.id == item.id" class="kenost-address__check" data-icon-name="CheckRound" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="height: 20px;"><path d="M18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2C14.4183 2 18 5.58172 18 10ZM14.5657 8.16569C14.8781 7.85327 14.8781 7.34673 14.5657 7.03431C14.2533 6.7219 13.7467 6.7219 13.4343 7.03431L9.2 11.2686L7.36568 9.43431C7.05327 9.12189 6.54673 9.12189 6.23431 9.43431C5.9219 9.74673 5.9219 10.2533 6.23431 10.5657L8.63432 12.9657C8.94673 13.2781 9.45327 13.2781 9.76569 12.9657L14.5657 8.16569Z"></path></svg>
+							<svg v-if="this.selectAddress?.id == item?.id" class="kenost-address__check" data-icon-name="CheckRound" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="height: 20px;"><path d="M18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2C14.4183 2 18 5.58172 18 10ZM14.5657 8.16569C14.8781 7.85327 14.8781 7.34673 14.5657 7.03431C14.2533 6.7219 13.7467 6.7219 13.4343 7.03431L9.2 11.2686L7.36568 9.43431C7.05327 9.12189 6.54673 9.12189 6.23431 9.43431C5.9219 9.74673 5.9219 10.2533 6.23431 10.5657L8.63432 12.9657C8.94673 13.2781 9.45327 13.2781 9.76569 12.9657L14.5657 8.16569Z"></path></svg>
 							<div v-else class="kenost-address__check-null"></div>
 						</div>
 						<div class="kenost-address__text">
@@ -13,14 +13,14 @@
 							<p><span v-if="item.room">Квартира {{item.room}},</span> <span v-if="item.entrance">подъезд {{item.entrance}},</span><span v-if="item.floor"> этаж {{item.floor}},</span><span v-if="item.floor"> домофон {{item.doorphone}}</span></p>
 						</div>
 						<div class="kenost-address__action" @click.stop>
-							<button :disabled="this.loadingIds.includes(item.id)" :class="{'loading': this.loadingIds.includes(item.id)}" class="kenost-address__button" @click="() => {
+							<button :disabled="this.loadingIds.includes(item.id)" :class="{'load': this.loadingIds.includes(item.id)}" class="kenost-address__button" @click="() => {
 								this.editAdressData = item
 								this.editModal = true
 							}">
 								<span class="kenost-spinner"></span>
 								<svg viewBox="0 0 24 24" name="edit" class="css-1cf5ojg"><path d="M17.96 2.54a1 1 0 0 0-1.42 0l-1.79 1.8 4.91 4.91 1.8-1.8a1 1 0 0 0 0-1.4l-3.5-3.5Zm.29 8.12-4.91-4.91-9.05 9.04a1 1 0 0 0-.23.37l-2 5.5a1 1 0 0 0 1.23 1.3l5-1.5a1 1 0 0 0 .42-.25l9.54-9.55Z"></path></svg>
 							</button>
-							<button :disabled="this.loadingIds.includes(item.id)" :class="{'loading': this.loadingIds.includes(item.id)}" class="kenost-address__button" @click="deleteAddress(item)">
+							<button :disabled="this.loadingIds.includes(item.id)" :class="{'load': this.loadingIds.includes(item.id)}" class="kenost-address__button" @click="deleteAddress(item)">
 								<span class="kenost-spinner"></span>
 								<svg viewBox="0 0 24 24" name="delete" class="css-1cf5ojg"><path d="M17 3h3c.6 0 1 .4 1 1v2H3V4c0-.6.4-1 1-1h3l.7-1.4c.2-.4.5-.6.9-.6h6.8c.4 0 .7.3.9.6L17 3ZM5 8l.9 13.1c.1.5.5.9 1.1.9h10.1c.5 0 1-.4 1-.9L19 8H5Z"></path></svg>
 							</button>
@@ -205,16 +205,16 @@ export default {
 	display: none;
 }
 
-.kenost-address__button.loading{
+.kenost-address__button.load{
 	cursor: not-allowed;
 }
 
 /* Показывать спиннер, если кнопка в состоянии загрузки */
-.kenost-address__button.loading .kenost-spinner {
+.kenost-address__button.load .kenost-spinner {
 	display: inline-block;
 }
 
-.kenost-address__button.loading svg {
+.kenost-address__button.load svg {
 	display: none;
 }
 

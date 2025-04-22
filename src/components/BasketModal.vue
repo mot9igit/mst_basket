@@ -89,7 +89,7 @@
                                 ₽
                               </p>
                             </div>
-                            <div class="order-product-bonus">
+                            <!-- <div class="order-product-bonus">
                               +{{
                                 Math.round(
                                   (product.price / 100) * 2
@@ -100,7 +100,7 @@
                                 alt="Бонусы"
                               />
                               за покупку
-                            </div>
+                            </div> -->
                           </div>
                         </div>
                       </div>
@@ -187,6 +187,54 @@
               </a>
             </div>
 
+            <h3 class="mt-3" v-if="this.deliveryMethod == 2 && this.address">Курьерская служба</h3>
+            <div v-if="this.deliveryMethod == 2 && this.address" class="kenost-courier-delivery">
+              <template v-if="this.loading_courier && !Object.keys(this.delivery_courier).length">
+                <div class="kenost-courier-delivery__card">
+                  <div>
+                    <div class="kenost-skeleton kenost-skeleton__image"></div>
+                    <div class="kenost-skeleton kenost-skeleton__name"></div>
+                    <div class="kenost-skeleton kenost-skeleton__price"></div>
+                  </div>
+                </div>
+                <div class="kenost-courier-delivery__card">
+                  <div>
+                    <div class="kenost-skeleton kenost-skeleton__image"></div>
+                    <div class="kenost-skeleton kenost-skeleton__name"></div>
+                    <div class="kenost-skeleton kenost-skeleton__price"></div>
+                  </div>
+                </div>
+                <div class="kenost-courier-delivery__card">
+                  <div>
+                    <div class="kenost-skeleton kenost-skeleton__image"></div>
+                    <div class="kenost-skeleton kenost-skeleton__name"></div>
+                    <div class="kenost-skeleton kenost-skeleton__price"></div>
+                  </div>
+                </div>
+              </template>
+              
+              <button type="button" v-else :disabled="this.loading_courier" @click="selectCourier(delivery)" class="kenost-courier-delivery__card" :class="{'active': delivery.code == this.courier?.code}" v-for="delivery in delivery_courier" :key="delivery.code">
+                <div v-if="loading_courier">
+                  <div class="kenost-skeleton kenost-skeleton__image"></div>
+                  <div class="kenost-skeleton kenost-skeleton__name"></div>
+                  <div class="kenost-skeleton kenost-skeleton__price"></div>
+                </div>
+                <template v-else>
+                  <img class="kenost-courier-delivery__image" :src="'https://mst.tools'+delivery.logo" alt="">
+                  <div class="kenost-courier-delivery__name" >{{ delivery.name }}</div>
+                  <div class="kenost-courier-delivery__info">
+                    <div class="kenost-courier-delivery__price" :class="{'kenost-courier-delivery__best': delivery.best}">{{(delivery.price).toLocaleString('ru')}} ₽</div>
+                    · 
+                    <div class="kenost-courier-delivery__time" v-if="delivery.time == 'express'">Как можно скорее</div>
+                    <div class="kenost-courier-delivery__time" v-else-if="delivery.time">{{pluralizeDays(delivery.time)}}</div>
+                  </div>
+                  <svg v-if="delivery.code == this.courier?.code" class="kenost-courier-delivery__icon" data-icon-name="CheckRound" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="height: 20px;"><path d="M18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2C14.4183 2 18 5.58172 18 10ZM14.5657 8.16569C14.8781 7.85327 14.8781 7.34673 14.5657 7.03431C14.2533 6.7219 13.7467 6.7219 13.4343 7.03431L9.2 11.2686L7.36568 9.43431C7.05327 9.12189 6.54673 9.12189 6.23431 9.43431C5.9219 9.74673 5.9219 10.2533 6.23431 10.5657L8.63432 12.9657C8.94673 13.2781 9.45327 13.2781 9.76569 12.9657L14.5657 8.16569Z"></path></svg>
+                </template>
+                
+              </button>
+            </div>
+
+
             <div class="dart-order__inputs-container">
               <div class="dart-order__all-delivery">
                 <h3>Получатель</h3>
@@ -238,7 +286,7 @@
           </form>
           <div class="dart-order__oplata">
             <div class="dart-order__info-oplata">
-              <div class="dart-order__list dart-order__list-border">
+              <!-- <div class="dart-order__list dart-order__list-border">
                 <b>Бонусов будет начислено</b>
                 <b class="dart-order__list-bonus"
                   ><span id="ms2_order_cart_bonus"
@@ -249,7 +297,7 @@
                     src="https://mst.tools/assets/templates/img/icons/bonus.svg"
                     alt="Бонусы MachineStore"
                 /></b>
-              </div>
+              </div> -->
               <div class="dart-order__list">
                 <b>Товары</b>
                 <b
@@ -261,7 +309,7 @@
               </div>
               <div class="dart-order__list">
                 <b>Доставка</b>
-                <b v-if="this.deliveryMethod == 2 && this.address"><span id="ms2_order_delivery_cost">9999999</span> ₽</b>
+                <b v-if="this.deliveryMethod == 2 && this.courier"><span id="ms2_order_delivery_cost">{{ Number(this.courier.price).toLocaleString('ru') }}</span> ₽</b>
                 <b v-else-if="this.deliveryMethod == 3 && this.point"><span id="ms2_order_delivery_cost">{{ Number(this.point.cost.price).toLocaleString('ru') }}</span> ₽</b>
                 <b v-else><span id="ms2_order_delivery_cost">0</span> ₽</b>
               </div>
@@ -307,10 +355,16 @@
                 </div>
                 <button
                   class="dart-btn dart-btn-primary btn-arrange pseudo_submit"
+                  :disabled="loading" :class="{loading: loading}"
                 >
-                  Оплатить
-                  <span>
-                    <span v-if="this.deliveryMethod == 2 && this.address">{{(Number(cost)).toLocaleString("ru")}}</span>
+                <span class="dot-loader">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
+                <span class="dot-loader-none">Оплатить</span>
+                  <span class="dot-loader-none">
+                    <span v-if="this.deliveryMethod == 2 && this.courier">{{(Number(cost) + Number(this.courier.price)).toLocaleString("ru")}}</span>
                     <span v-else-if="this.deliveryMethod == 3 && this.point">{{(Number(cost) + this.point.cost.price).toLocaleString("ru")}}</span>
                     <span v-else>{{(Number(cost)).toLocaleString("ru")}}</span>
                     ₽</span>
@@ -325,7 +379,10 @@
   <Points :modal="modalPoints"  @update:modal="this.modalPoints = $event" @update:point="this.point = $event"/>
   <Adress :modal="modalAdress" @update:modal="this.modalAdress = $event" @update:address="this.address = $event"/>
   {{ address }}
+  <br><br>
   {{ point }}
+  <br><br>
+  {{ courier }}
 </template>
 
 <script>
@@ -358,6 +415,8 @@ export default {
       deliveryMethod: 1,
       point: null,
       address: null,
+      courier: null,
+      loading_courier: false,
       orderData: {
         receiver: "",
         email: "",
@@ -374,7 +433,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["basket", "cost"]),
+    ...mapGetters(["basket", "cost", "delivery_courier"]),
   },
   mounted() {
     this.get_basket_api({
@@ -382,8 +441,22 @@ export default {
     }).finally(() => (this.loading = false));
   },
   methods: {
-    ...mapActions(["get_basket_api", "basket_api"]),
+    ...mapActions([
+      "get_basket_api",
+      "basket_api",
+      "delivery_courier_api",
+      "marketplace_response_api"
+    ]),
+    pluralizeDays(n) {
+      const mod10 = n % 10;
+      const mod100 = n % 100;
 
+      if (mod10 === 1 && mod100 !== 11) {
+        return `от ${n} дня`;
+      } else {
+        return `от ${n} дней`;
+      }
+    },
     closeModal() {
       this.$emit("update:modal", false);
     },
@@ -490,12 +563,56 @@ export default {
         this.errors[field] = "";
       }
     },
+    selectCourier(item){
+      this.courier = item;
+    }
   },
   watch: {
 		address(newVal) {
+      this.loading = true
       // Отправляем запрос на получение доставок курьером
-			console.log(newVal)
-		}
+      this.loading_courier = true
+      this.delivery_courier_api({
+        action: "courier",
+        address_id: this.address.id
+      }).finally(() => {
+        this.loading_courier = false
+        this.loading = false
+      })
+		},
+    delivery_courier: {
+			handler(newVal) {
+				if (newVal) {
+					this.courier = Object.values(newVal)[0];
+				}
+			},
+			deep: true,
+			immediate: true // если хочешь, чтобы сработал при первом рендере
+		},
+    cost (newVal) {
+      if(this.address){
+        this.loading = true
+        //Обновляем цену доставки курьером
+        this.loading_courier = true
+        this.delivery_courier_api({
+          action: "courier",
+          address_id: this.address.id
+        }).finally(() => {
+          this.loading_courier = false
+          this.loading = false
+        })
+      }
+      if(this.point){
+        this.loading = true
+        //Обновляем цену доставки в ПВЗ
+        this.marketplace_response_api({
+          action: 'points',
+          cost: true
+        }).then((res) => {
+          this.point.cost = res?.data?.data[this.point.code]?.cost
+        }).finally(() => this.loading = false)
+      }
+    }
 	}
 };
 </script>

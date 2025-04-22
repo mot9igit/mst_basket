@@ -1259,3 +1259,106 @@ h3 + *, .h3 + * {
     }
 }
 
+.kenost-skeleton {
+    background: linear-gradient(90deg, #eeeeee 25%, #dddddd 37%, #eeeeee 63%);
+    background-size: 400% 100%;
+    animation: skeleton-loading 1.2s ease-in-out infinite;
+    border-radius: 8px;
+  }
+  
+  @keyframes skeleton-loading {
+    0% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: -100% 0;
+    }
+  }
+  
+  .kenost-skeleton__image {
+    width: 48px;
+    height: 32px;
+  }
+  
+  .kenost-skeleton__name {
+    height: 16px;
+    width: 120px;
+    margin: 4px 0;
+  }
+  
+  .kenost-skeleton__price {
+    height: 14px;
+    width: 80px;
+  }
+
+.kenost-courier-delivery{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    &__card{
+        margin: 1px;
+        border: none;
+        width: max-content;
+        height: auto;
+        position: relative;
+        background-color: #f2f1f0;
+        border-radius: 16px;
+        padding: 12px 36px 12px 16px;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: left;
+
+        &.active{
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 1), inset 0 0 0 1px rgba(0, 0, 0, 1);
+        }
+
+        &:disabled{
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    }
+
+    &__image{
+        height: 30px !important;
+    }
+    
+    // &__best{
+    //     color: #F00;
+    // }
+
+    &__old-price{
+        text-decoration: line-through;
+    }
+
+    &__primary{
+        font-size: 13px;
+        color: rgb(0, 179, 83);
+    }
+
+    &__name{
+        line-height: 16px;
+        font-size: 13px;
+    }
+
+    &__info{
+        display: flex;
+        font-size: 13px;
+        gap: 4px;
+    }
+
+    &__price{
+        font-weight: 500;
+    }
+
+    &__time{
+        font-weight: 500;
+    }
+
+    &__icon{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+}

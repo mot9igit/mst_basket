@@ -6387,7 +6387,7 @@ ul {
   -webkit-transform: translate(100%);
       -ms-transform: translate(100%);
           transform: translate(100%);
-  padding: 60px 32px;
+  padding: 32px;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -6459,7 +6459,7 @@ ul {
 }
 
 .dart-order__right form {
-  height: calc(100% - 266px);
+  height: calc(100% - 205px);
   overflow-y: auto;
 }
 

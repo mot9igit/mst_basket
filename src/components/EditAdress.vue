@@ -65,7 +65,6 @@
 					ref="yMap"
 					:settings="{
 						location: mapSettings.location,
-						behaviors: ['drag', 'dblClickZoom'], // ← scrollZoom не включаем
 					}"
 					style="height: 500px"
 					>
@@ -142,7 +141,7 @@
 			center: [37.620393, 55.75396],
 			zoom: 16
 		  },
-		  behaviors: ['drag', 'dblClickZoom'] // отключили scrollZoom
+		//   behaviors: ['drag', 'dblClickZoom'] // отключили scrollZoom
 		},
 		loading: false,
 		centerCoords: [37.620393, 55.75396],

@@ -3,7 +3,8 @@ import Axios from 'axios'
 export default {
     state: {
         basket: [],
-        basket_delivery: [],
+        delivery_points: [],
+        delivery_courier: [],
         basket_address: [],
         cost: 0
     },
@@ -39,7 +40,7 @@ export default {
             .catch(error => {
             })
         },
-        basket_delivery_api ({ commit }, data) {
+        delivery_points_api ({ commit }, data) {
             return Axios('/rest/marketplace', {
                 method: 'POST',
                 data: data,
@@ -48,7 +49,22 @@ export default {
                 }
             })
             .then((response) => {
-                commit('SET_BASKET_DELIVERY_TO_VUEX', response.data)
+                commit('SET_DELIVERY_POINTS_TO_VUEX', response.data)
+                return response
+            })
+            .catch(error => {
+            })
+        },
+        delivery_courier_api ({ commit }, data) {
+            return Axios('/rest/marketplace', {
+                method: 'POST',
+                data: data,
+                headers: {
+                    'Access-Control-Allow-Origin': '*'
+                }
+            })
+            .then((response) => {
+                commit('SET_DELIVERY_COURIER_TO_VUEX', response.data)
                 return response
             })
             .catch(error => {
@@ -89,11 +105,14 @@ export default {
             state.basket = data.data.data
             state.cost = data.data.cost
         },
-        SET_BASKET_DELIVERY_TO_VUEX: (state, data) => {
-            state.basket_delivery = data.data
+        SET_DELIVERY_POINTS_TO_VUEX: (state, data) => {
+            state.delivery_points = data.data
         },
         SET_BASKET_MY_ADDRESS_TO_VUEX: (state, data) => {
             state.basket_address = data.data
+        },
+        SET_DELIVERY_COURIER_TO_VUEX: (state, data) => {
+            state.delivery_courier = data.data
         },
     },
     getters: {
@@ -103,8 +122,11 @@ export default {
         cost (state) {
             return state.cost
         },
-        basket_delivery (state) {
-            return state.basket_delivery
+        delivery_points (state) {
+            return state.delivery_points
+        },
+        delivery_courier (state) {
+            return state.delivery_courier
         },
         basket_address (state) {
             return state.basket_address
