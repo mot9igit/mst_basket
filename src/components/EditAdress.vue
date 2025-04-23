@@ -283,7 +283,7 @@
 				let getAddress = geoObject.metaDataProperty.GeocoderMetaData.text
 				getAddress = getAddress.replace("Россия, ", '')
 				this.dataAdress.adress = getAddress
-				console.log(this.dataAdress)
+				// console.log(this.dataAdress)
 			} else {
 				this.dataAdress.adress = ""
 			}
@@ -370,7 +370,7 @@
 	watch: {
 		address: {
 			handler(newVal) {
-				console.log(newVal)
+				// console.log(newVal)
 				if (newVal) {
 					this.dataAdress.postal_code = newVal.postal_code
 					this.dataAdress.adress = newVal.text_address,

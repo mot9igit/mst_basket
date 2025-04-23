@@ -246,7 +246,10 @@
                     v-model="orderData.receiver"
                     placeholder="Иванов Иван Иванович"
                     class="required"
-                    @blur="validateField('receiver')"
+                    @blur="() => {
+                      validateField('receiver')
+                      orderAdd('receiver')
+                    }"
                   />
                   <span class="error-message" v-if="errors.receiver">{{
                     errors.receiver
@@ -260,7 +263,10 @@
                     v-model="orderData.email"
                     placeholder="example@example.com"
                     class="required"
-                    @blur="validateEmail"
+                    @blur="() => {
+                      validateEmail
+                      orderAdd('email')
+                    }"
                   />
                   <span class="error-message" v-if="errors.email">{{
                     errors.email
@@ -273,7 +279,10 @@
                     id="order_phone"
                     v-model="orderData.phone"
                     @input="formatPhone"
-                    @blur="validatePhone"
+                    @blur="() => {
+                      validatePhone
+                      orderAdd('phone')
+                    }"
                     placeholder="+7 999 123-45-67"
                     maxlength="18"
                   />
@@ -354,6 +363,7 @@
                   </div>
                 </div>
                 <button
+                  @click="submit"
                   class="dart-btn dart-btn-primary btn-arrange pseudo_submit"
                   :disabled="loading" :class="{loading: loading}"
                 >
@@ -390,6 +400,8 @@ import Counter from "./Counter.vue";
 import Points from "./Points.vue"
 import Adress from "./Adress.vue"
 import { mapActions, mapGetters } from "vuex";
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 export default {
   name: "BasketModal",
@@ -418,9 +430,9 @@ export default {
       courier: null,
       loading_courier: false,
       orderData: {
-        receiver: "",
-        email: "",
-        phone: "",
+        receiver: "Кузнецов Дмитрий Алесеевич",
+        email: "kenostdev@gmail.com",
+        phone: "79194464596",
         promocode: "",
         activePromo: false,
       },
@@ -555,6 +567,57 @@ export default {
       }
     },
 
+    orderAdd(field, value){
+      switch(field){
+        case 'receiver': {
+          if (this.orderData.receiver == "") {
+            break;
+          }
+          this.marketplace_response_api({
+            action: "order/add",
+            key: "receiver",
+            value: this.orderData.receiver
+          })
+          break;
+        }
+        case 'email': {
+          const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!re.test(this.orderData.email)) {
+            break;
+          }
+          this.marketplace_response_api({
+            action: "order/add",
+            key: "email",
+            value: this.orderData.email
+          })
+          break;
+        }
+        case 'phone': {
+          const phoneDigits = this.orderData.phone.replace(/\D/g, "");
+          if (phoneDigits.length !== 11) {
+            break;
+          }
+
+          const regExp = /[\*\%#&\$\s]/g;
+          const phoneClean = this.orderData.phone.replace(regExp, '');
+          this.marketplace_response_api({
+            action: "order/add",
+            key: "phone",
+            value: phoneClean
+          })
+          break;
+        }
+        
+        default:{
+          this.marketplace_response_api({
+            action: "order/add",
+            key: field,
+            value: value
+          })
+          break;
+        }
+      }
+    },
     // Общая валидация поля
     validateField(field) {
       if (!this.orderData[field].trim()) {
@@ -563,9 +626,169 @@ export default {
         this.errors[field] = "";
       }
     },
+
+    //Выбор курьерской службы
     selectCourier(item){
       this.courier = item;
+    },
+
+    submit() {
+      this.validateField("receiver");
+      this.validatePhone();
+      this.validateEmail();
+
+      // Проверка обязательных полей
+      const hasErrors = this.errors.receiver || this.errors.phone || this.errors.email;
+
+      if (hasErrors) {
+        toast("Пожалуйста, заполните все обязательные поля корректно.", {
+          autoClose: 3000,
+          type: "error",
+        });
+        return;
+      }
+
+      // Проверка способа доставки
+      if (this.deliveryMethod === 2 && !this.address) {
+        toast("Выберите адрес доставки.", {
+          autoClose: 3000,
+          type: "error",
+        });
+        return;
+      }
+
+      if (this.deliveryMethod === 3 && !this.point) {
+        toast("Выберите пункт выдачи.", {
+          autoClose: 3000,
+          type: "error",
+        });
+        return;
+      }
+
+      this.orderAdd('payment', 3)
+      this.orderAdd('delivery', this.deliveryMethod)
+
+      if(this.deliveryMethod == 2){
+        if(this.address.postal_code){
+          this.orderAdd('index', this.address.postal_code)
+        }
+        if(this.address.region){
+          this.orderAdd('region', this.address.region)
+        }
+        if(this.address.city){
+          this.orderAdd('city', this.address.city)
+        }
+        if(this.address.street){
+          this.orderAdd('street', this.address.street)
+        }
+        if(this.address.entrance){
+          this.orderAdd('entrance', this.address.entrance)
+        }
+        if(this.address.floor){
+          this.orderAdd('floor', this.address.floor)
+        }
+        if(this.address.room){
+          this.orderAdd('room', this.address.room)
+        }
+        if(this.address.text_address){
+          this.orderAdd('text_address', this.address.text_address)
+        }
+      }
+
+      if(this.deliveryMethod == 3){
+        if(this.point?.code == "cdek"){
+          if(this.point?.point?.location?.postal_code){
+            this.orderAdd('index', this.point?.point?.location?.postal_code)
+          }
+          if(this.point?.point?.location?.region){
+            this.orderAdd('region', this.point?.point?.location?.region)
+          }
+          if(this.point?.point?.location?.city){
+            this.orderAdd('city', this.point?.point?.location?.city)
+          }
+          if(this.point?.point?.location?.address){
+            this.orderAdd('street', this.point?.point?.location?.address)
+          }
+          if(this.point?.point?.location?.address_full){
+            this.orderAdd('text_address', this.point?.point?.location?.address_full)
+          }
+        }
+      }
+
+      // Всё в порядке — отправка заказа
+      // this.loading = true;
+
+      const regExp = /[\*\%#&\$\s]/g;
+      const phoneClean = this.orderData.phone.replace(regExp, '');
+
+      let delivery_data = {};
+      //delivery_data
+      if(this.deliveryMethod == 2){
+        delivery_data = {
+          service: {
+            main_key: this.courier.code,
+            method: 'door', //Доставка курьером
+            delivery: this.deliveryMethod, //ID из msDelivery - в нашем случае совпадает с this.deliveryMethod
+            address: this.address.text_address,
+          }
+        }
+
+        delivery_data.service[this.courier.code] = {
+          price: {
+            door: {
+              price: this.courier.price,
+              time: this.courier.time
+            }
+          }
+        }
+      } else if(this.deliveryMethod == 3){
+        delivery_data = {
+          service: {
+            main_key: this.point.code,
+            method: 'terminal', //Доставка курьером
+            delivery: this.deliveryMethod, //ID из msDelivery - в нашем случае совпадает с this.deliveryMethod
+            address: this.point.point.location.address,
+          }
+        }
+
+        delivery_data.service[this.point.code] = {
+          price: {
+            terminal: {
+              price: this.point.cost.price,
+              time: this.point.cost.time
+            }
+          }
+        }
+      }
+
+      this.orderAdd('delivery_data', JSON.stringify(delivery_data))
+      
+
+      const data = {
+        receiver: this.orderData.receiver,
+        email: this.orderData.email,
+        phone: phoneClean,
+        delivery: this.deliveryMethod,
+        payment: 3,
+        delivery_data: delivery_data
+      }
+
+      this.marketplace_response_api({
+        action: 'order/submit',
+        data: data
+      })
+
+      // setTimeout(() => {
+      //   this.loading = false;
+      //   toast("Заказ успешно оформлен!", {
+      //     autoClose: 3000,
+      //     type: "success",
+      //   });
+      //   this.closeModal();
+      // }, 1000);
     }
+
+
   },
   watch: {
 		address(newVal) {

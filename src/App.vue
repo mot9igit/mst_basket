@@ -13,7 +13,7 @@
           <template v-for="(product, index) in store.products" :key="product.id">
             <div class="basket-container__card product-item">
               <a :href="product.uri" class="basket-container__img">
-                <img :src="'https://mst.tools' + product?.image" alt="Электростанция бензиновая синхронная (генератор) ИНТЕРСКОЛ ЭБ3500" title="Электростанция бензиновая синхронная (генератор) ИНТЕРСКОЛ ЭБ3500" data-pagespeed-url-hash="263120567" onload="pagespeed.CriticalImages.checkImageForCriticality(this);">
+                <img :src="'https://mst.tools' + product?.image" alt="Электростанция бензиновая синхронная (генератор) ИНТЕРСКОЛ ЭБ3500" title="Электростанция бензиновая синхронная (генератор) ИНТЕРСКОЛ ЭБ3500">
               </a>
               <div class="basket-container__info">
                 <div class="basket-container__title">

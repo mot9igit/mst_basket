@@ -1321,7 +1321,7 @@ h3 + *, .h3 + * {
     }
 
     &__image{
-        height: 30px !important;
+        height: 25px !important;
     }
     
     // &__best{
@@ -1361,4 +1361,8 @@ h3 + *, .h3 + * {
         top: 10px;
         right: 10px;
     }
+}
+
+.text_address{
+    max-width: calc(100% - 32px);
 }
