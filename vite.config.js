@@ -1,4 +1,3 @@
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -14,13 +13,6 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
-  // css: {
-  //   postcss: {
-  //     plugins: [
-  //       autoprefixer({}) 
-  //     ],
-  //   }
-  // },
   server: {
     proxy: {
       '/rest': {
@@ -30,4 +22,21 @@ export default defineConfig({
       }
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        assetFileNames: (assetInfo) => {
+          // Фильтр по расширениям изображений
+          if (/\.(png|jpe?g|svg|gif|webp|ico)$/.test(assetInfo.name)) {
+            return 'assets/templates/img/basket/[name][extname]'
+          }
+
+          // Остальное (CSS, шрифты, и т.д.) — по умолчанию
+          return 'assets/[name]-[hash][extname]'
+        },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+      }
+    }
+  }
 })

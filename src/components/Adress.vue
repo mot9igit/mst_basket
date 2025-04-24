@@ -26,6 +26,10 @@
 							</button>
 						</div>
 					</div>
+					<div class="kenost-address-null" v-if="this.basket_address.length == 0">
+						<img src="https://mst.tools/assets/content/images/icons/punkt-vyidachi-tk.png" alt="">
+						<p >У вас пока нет ни одного адреса. Добавьте новый, чтобы оформить заказ.</p>
+					</div>
 					<button class="popup-btn-two mt-2" @click="() => {
 						this.editAdressData = null
 						this.editModal = true
@@ -33,11 +37,11 @@
 						<!-- <svg viewBox="0 0 14 20" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_149_2063)"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.29968 11.6999L6.29969 16.7H7.69969L7.69968 11.6999H12.6998V10.2999H7.69968L7.69968 5.29999H6.29968L6.29968 10.2999H1.2998V11.6999H6.29968Z"></path></g><defs><clipPath id="clip0_149_2063"><rect width="14" height="20"></rect></clipPath></defs></svg> -->
 						Добавить новый адресс
 					</button>
-					<button class="popup-btn mt-2" @click="chooseAddress()">Выбрать</button>
+					<button v-if="this.basket_address.length > 0" class="popup-btn mt-2" @click="chooseAddress()">Выбрать</button>
 			</div>
     </div>
   </div>
-  {{ this.editAdressData }}
+  <!-- {{ this.editAdressData }} -->
 	<AdressEdit :modal="editModal" @update:modal="this.editModal = $event" :address="this.editAdressData"/>
 </template>
 

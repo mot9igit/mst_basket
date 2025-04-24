@@ -464,7 +464,7 @@
 		bottom: 50%;
 		background-repeat: no-repeat;
 		width: 20px;
-		background-image: url(/dot.svg);
+		background-image: url(https://mst.tools/assets/templates/img/basket/dot.svg);
 	}
 
 	.placemark{
@@ -514,7 +514,7 @@
 
 	.placemark::after{
 		width: 44px;
-    	background-image: url(/mapmarker.svg);
+    	background-image: url(https://mst.tools/assets/templates/img/basket/mapmarker.svg);
 		content: '';
 		position: absolute;
 		height: 100%;

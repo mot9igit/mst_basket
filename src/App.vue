@@ -72,11 +72,6 @@
       <span></span>
     </span>
   </div>
-  <!-- <div>
-    <button @click="addBasket(4992)">Добавить товар</button>
-    <button @click="addBasket(4601)">Добавить товар</button>
-    <button @click="addBasket(28605)">Добавить товар</button>
-  </div> -->
   <BasketModal :modal="this.modal" @update:modal="this.modal = $event"/>
 </template>
 

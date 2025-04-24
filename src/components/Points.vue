@@ -13,7 +13,7 @@
 
           <yandex-map-clusterer :grid-size="64" zoom-on-cluster-click>
             <yandex-map-marker
-              v-if="delivery_points?.cdek?.cost > 0"
+              v-if="delivery_points?.cdek?.cost?.price > 0"
               v-for="item in delivery_points?.cdek?.data"
               :key="item.id"
               :settings="{ coordinates: [Number(item.location.longitude), Number(item.location.latitude)] }"
@@ -25,7 +25,7 @@
                 </div>
                 <div class="custom-marker">
                   <img
-                    src="/cdek.png"
+                    src="https://mst.tools/assets/content/images/delivery/cdek.svg"
                     :alt="item.name"
                     class="marker-icon"
                   />
@@ -125,12 +125,12 @@
       YandexMapListener
     },
     computed: {
-        ...mapGetters(["delivery_points"]),
+      ...mapGetters(["delivery_points"]),
     },
     mounted() {
-        this.delivery_points_api({
-          action: "points",
-        })
+      this.delivery_points_api({
+        action: "points",
+      })
     },
     methods: {
     ...mapActions(["delivery_points_api"]),
@@ -187,6 +187,19 @@
         return `${n} дней`;
       }
 
+    },
+    watch: {
+      delivery_points: {
+        handler(newVal) {
+          if (newVal) {
+            if(this.delivery_points?.position?.geo_lat){
+              this.mapSettings.location.center = [Number(this.delivery_points?.position?.geo_lon), Number(this.delivery_points?.position?.geo_lat)]
+            }
+          }
+        },
+        deep: true,
+        immediate: true // если хочешь, чтобы сработал при первом рендере
+      },
     }
   }
   </script>
@@ -307,6 +320,10 @@
 .pipup-name{
   margin-bottom: 8px;
   font-weight: bold;
+}
+
+.custom-marker{
+  height: 100%;
 }
 
 </style>

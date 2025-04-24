@@ -61,4 +61,4 @@ app
     hideProgressBar: true,
     dangerouslyHTMLString: true
   })
-  .mount('#app')
+  .mount('#mst-kenost-basket')

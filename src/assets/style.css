@@ -16,8 +16,6 @@
   --link-color-hover: #8B8B8B;
   --footer-text-color: #B0B0B0;
   --rating-color: #E6E6E6;
-  --logo-desctop: url('../img/logo_alt.svg');
-  --logo-mobile: url('../img/min-logo.svg');
   --color-sitebar-text: #595959;
   --text-color-dop: #ACABAB;
   --bs-breadcrumb-divider: "-";
@@ -40,8 +38,6 @@
   --link-color-hover: #747474;
   --footer-text-color: #4f4f4f;
   --rating-color: #191919;
-  --logo-desctop: url('../img/logo.svg');
-  --logo-mobile: url('../img/logo.svg');
   --color-sitebar-text: #595959;
   --text-color-dop: #ACABAB;
   --bs-breadcrumb-divider: "—";
@@ -95,14 +91,14 @@
   font-weight: 600;
 }
 
-@font-face {
+/* @font-face {
   font-family: 'icomoon';
   src: url("../fonts/icomoon.eot?j2033u");
   src: url("../fonts/icomoon.eot?j2033u#iefix") format("embedded-opentype"), url("../fonts/icomoon.ttf?j2033u") format("truetype"), url("../fonts/icomoon.woff?j2033u") format("woff"), url("../fonts/icomoon.svg?j2033u#icomoon") format("svg");
   font-weight: normal;
   font-style: normal;
   font-display: block;
-}
+} */
 
 [class^="d_icon-"], [class*=" d_icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
@@ -1170,6 +1166,7 @@ a {
 .d-col-content {
   width: calc(100% - calc(287px + 350px));
   padding: 0 24px;
+  z-index: 2;
 }
 
 .d-col-map {
@@ -1177,6 +1174,7 @@ a {
   height: 100%;
   top: 8px;
   position: sticky;
+  z-index: 2;
 }
 
 .cards-img-text-mobile {
@@ -1973,7 +1971,7 @@ hr {
       -ms-flex: 1 0 auto;
           flex: 1 0 auto;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .dart_footer {
@@ -3209,17 +3207,6 @@ ul {
   pointer-events: none;
 }
 
-.dart-header__logo {
-  margin-right: 24px;
-  width: 210px;
-  height: 80px;
-  background-image: var(--logo-desctop);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 100%;
-  display: block;
-}
-
 .dart-header .dart_container {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -3732,7 +3719,7 @@ ul {
 
 .shops_nearby_container_image {
   background-color: #fff;
-  background-image: url(/img/icons/shop.svg);
+  /* background-image: url(/img/icons/shop.svg); */
   border: 1px solid rgba(0, 0, 0, 0.12);
   background-repeat: no-repeat;
   background-position: center;
@@ -3908,7 +3895,7 @@ ul {
 }
 
 .dart-menu-left__map {
-  background: url("../img/home/menumap.png");
+  /* background: url("../img/home/menumap.png"); */
   height: 100%;
   width: 100%;
   background-position: center;
@@ -4251,7 +4238,7 @@ ul {
   content: "";
   position: absolute;
   height: 100%;
-  background-image: url(../img/loader.svg);
+  /* background-image: url(../img/loader.svg); */
   z-index: 2;
   width: 20%;
   max-width: 95px;
@@ -4540,7 +4527,7 @@ ul {
 .dart-cheackbox:checked + label::before {
   border-color: var(--primary-color);
   background-color: transparent;
-  background-image: url("../img/icons/checkmark.svg");
+  /* background-image: url("../img/icons/checkmark.svg"); */
   background-size: 80%;
 }
 
@@ -4795,7 +4782,7 @@ ul {
 
 .changeshop__map {
   width: 500px;
-  background: url(../img/home/menumap.png);
+  /* background: url(../img/home/menumap.png); */
   height: 100%;
   background-position: center;
   background-repeat: no-repeat;
@@ -6439,6 +6426,7 @@ ul {
           flex-direction: column;
   gap: 20px;
   padding-right: 3px;
+  height: calc(100% - 50px);
 }
 
 .dart-order__left::-webkit-scrollbar {
@@ -6510,8 +6498,10 @@ ul {
 }
 
 .dart-order.show {
-  pointer-events: all;
-  background: rgba(0, 0, 0, 0.5);
+  pointer-events: all !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  top: 0;
+  left: 0;
 }
 
 .dart-order.show .dart-order__content {
@@ -7947,7 +7937,7 @@ ul {
   .d-col-catalog-el {
     width: calc(25% - 5px);
   }
-  .dart-header__logo {
+  /* .dart-header__logo {
     background: var(--logo-mobile);
     background-position: center;
     background-repeat: no-repeat;
@@ -7955,7 +7945,7 @@ ul {
     width: 40px;
     height: 40px;
     margin-right: 12px;
-  }
+  } */
   .dart-header .nav__all-shop i {
     display: block;
   }
@@ -8006,10 +7996,10 @@ ul {
     display: flex;
     gap: 8px;
   }
-  .dart-header__logo {
+  /* .dart-header__logo {
     width: 24px;
     height: 24px;
-  }
+  } */
   .dart-header__basket {
     display: none;
   }
@@ -8841,7 +8831,7 @@ ul {
 .dart-cheackbox-container.fake.active label::before {
   border-color: var(--primary-color);
   background-color: transparent;
-  background-image: url("../img/icons/checkmark.svg");
+  /* background-image: url("../img/icons/checkmark.svg"); */
   background-size: 80%;
 }
 
@@ -12046,7 +12036,7 @@ ol.def-section li + li {
   border-radius: 5px;
   width: 100%;
   height: 482px;
-  background-image: url("../img/home/menumap.png");
+  /* background-image: url("../img/home/menumap.png"); */
   background-repeat: no-repeat;
   background-size: 100%;
   background-position: center;

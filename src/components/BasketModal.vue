@@ -400,11 +400,6 @@
   </div>
   <Points :modal="modalPoints"  @update:modal="this.modalPoints = $event" @update:point="this.point = $event"/>
   <Adress :modal="modalAdress" @update:modal="this.modalAdress = $event" @update:address="this.address = $event"/>
-  {{ address }}
-  <br><br>
-  {{ point }}
-  <br><br>
-  {{ courier }}
 </template>
 
 <script>
