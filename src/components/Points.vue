@@ -13,6 +13,7 @@
 
           <yandex-map-clusterer :grid-size="64" zoom-on-cluster-click>
             <yandex-map-marker
+              v-if="delivery_points?.cdek?.cost > 0"
               v-for="item in delivery_points?.cdek?.data"
               :key="item.id"
               :settings="{ coordinates: [Number(item.location.longitude), Number(item.location.latitude)] }"

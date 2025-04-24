@@ -7,7 +7,7 @@
         </div>
       </div>
       <div class="dart-order__container">
-        <div class="dart-order__left js-order-cart">
+        <div class="dart-order__left js-order-cart" :class="{'cursornone': this.loading_global}">
           <template v-for="org in basket" :key="org.id">
             <template v-for="store in org.data" :key="store.id">
               <div class="dart-order__el">
@@ -118,14 +118,15 @@
               <a
                 class="dart-btn dart-btn-radio-mini"
                 :class="{ active: this.deliveryMethod === 1 }"
-                @click="this.deliveryMethod = 1"
+                @click.prevent="handleDeliveryClick(1)"
               >
                 <input
                   type="radio"
                   name="delivery"
                   value="1"
                   id="delivery_1"
-                  v-model="this.deliveryMethod"
+                  :checked="deliveryMethod === 1"
+                  readonly
                 />
                 <label for="delivery_1" class="text">
                   <div class="dart-order__delivery-title">Самовывоз</div>
@@ -134,14 +135,15 @@
               <a
                 class="dart-btn dart-btn-radio-mini"
                 :class="{ active: this.deliveryMethod === 2 }"
-                @click="this.deliveryMethod = 2"
+                @click.prevent="handleDeliveryClick(2)"
               >
                 <input
                   type="radio"
                   name="delivery"
                   value="2"
                   id="delivery_2"
-                  v-model="this.deliveryMethod"
+                  :checked="deliveryMethod === 2"
+                  readonly
                 />
                 <label for="delivery_2" class="text">
                   <div class="dart-order__delivery-title">Курьером до квартиры</div>
@@ -150,26 +152,29 @@
               <a
                 class="dart-btn dart-btn-radio-mini"
                 :class="{ active: this.deliveryMethod === 3 }"
-                @click="this.deliveryMethod = 3"
+                @click.prevent="handleDeliveryClick(3)"
               >
                 <input
                   type="radio"
                   name="delivery"
                   value="3"
                   id="delivery_3"
-                  v-model="this.deliveryMethod"
+                  :checked="deliveryMethod === 3"
+                  readonly
                 />
                 <label for="delivery_3" class="text">
-                  <div class="dart-order__delivery-title">
-                    Доставка в пункт выдачи
-                  </div>
+                  <div class="dart-order__delivery-title">Доставка в пункт выдачи</div>
                 </label>
               </a>
             </div>
 
             <h3 class="mt-3" v-if="this.deliveryMethod == 2 || this.deliveryMethod == 3">Адрес доставки</h3>
             <div v-if="this.deliveryMethod == 2">
-              <a @click="this.modalAdress = true" class="dart-btn dart-btn-choice mt-2 dart-modal-toggler" data-dart-modal="dm-my-addres" style="width: 100%;">
+              <a @click="() => {
+                if(!this.loading_global){
+                  this.modalAdress = true
+                }
+              }" class="dart-btn dart-btn-choice mt-2 dart-modal-toggler" data-dart-modal="dm-my-addres" style="width: 100%;">
                 <p v-if="!this.address" class="text_address">Выбрать адрес доставки</p>
                 <p v-else class="text_address text-black ellipsis">{{ this.address.text_address }}<span v-if="this.address.room"> кв. {{this.address.room}},</span> <span v-if="this.address.entrance">под. {{this.address.entrance}},</span><span v-if="this.address.floor"> эт. {{this.address.floor}} </span></p>
                 <svg v-if="!this.address" class="styles-module-icon-JSbNo" data-icon-name="ArrowRight" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="height: 20px;"><path d="M6.91412 3.57408C6.58869 3.89952 6.58869 4.42715 6.91412 4.75259L12.1582 9.99667L6.91412 15.2407C6.58869 15.5662 6.58869 16.0938 6.91412 16.4193C7.23956 16.7447 7.7672 16.7447 8.09263 16.4193L13.926 10.5859C14.2514 10.2605 14.2514 9.73285 13.926 9.40741L8.09263 3.57408C7.7672 3.24864 7.23956 3.24864 6.91412 3.57408Z"></path></svg>
@@ -179,7 +184,11 @@
 
 
             <div v-if="this.deliveryMethod == 3">
-              <a @click="this.modalPoints = true" class="dart-btn dart-btn-choice mt-2 dart-modal-toggler" data-dart-modal="dm-my-addres" style="width: 100%;">
+              <a @click="() => {
+                if(!this.loading_global){
+                  this.modalPoints = true
+                }
+              }" class="dart-btn dart-btn-choice mt-2 dart-modal-toggler" data-dart-modal="dm-my-addres" style="width: 100%;">
                 <p v-if="!this.point" class="text_address">Выбрать пункт выдачи</p>
                 <p v-else class="text_address text-black">{{ this.point?.point?.owner_code == "CDEK"? "СДЭК" : null }}, {{ this.point?.point?.location?.address }}</p>
                 <svg v-if="!this.point" class="styles-module-icon-JSbNo" data-icon-name="ArrowRight" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="height: 20px;"><path d="M6.91412 3.57408C6.58869 3.89952 6.58869 4.42715 6.91412 4.75259L12.1582 9.99667L6.91412 15.2407C6.58869 15.5662 6.58869 16.0938 6.91412 16.4193C7.23956 16.7447 7.7672 16.7447 8.09263 16.4193L13.926 10.5859C14.2514 10.2605 14.2514 9.73285 13.926 9.40741L8.09263 3.57408C7.7672 3.24864 7.23956 3.24864 6.91412 3.57408Z"></path></svg>
@@ -243,6 +252,7 @@
                     type="text"
                     name="receiver"
                     id="order_receiver"
+                    :disabled="this.loading_global"
                     v-model="orderData.receiver"
                     placeholder="Иванов Иван Иванович"
                     class="required"
@@ -261,6 +271,7 @@
                     name="email"
                     id="order_email"
                     v-model="orderData.email"
+                    :disabled="this.loading_global"
                     placeholder="example@example.com"
                     class="required"
                     @blur="() => {
@@ -278,6 +289,7 @@
                     name="phone"
                     id="order_phone"
                     v-model="orderData.phone"
+                    :disabled="this.loading_global"
                     @input="formatPhone"
                     @blur="() => {
                       validatePhone
@@ -349,7 +361,7 @@
                 >
                   <div class="dart-input dart-input-text">
                     <input
-                      :disabled="this.orderData.activePromo"
+                      :disabled="this.orderData.activePromo || this.loading_global"
                       type="text"
                       placeholder="Промокод"
                       name="promocode"
@@ -442,6 +454,7 @@ export default {
         phone: "",
       },
       loading: false,
+      loading_global: false
     };
   },
   computed: {
@@ -469,7 +482,15 @@ export default {
         return `от ${n} дней`;
       }
     },
+    handleDeliveryClick(value) {
+      if (!this.loading_global) {
+        this.deliveryMethod = value;
+      }
+    },
     closeModal() {
+      if(this.loading_global){
+        return
+      }
       this.$emit("update:modal", false);
     },
     changePromo() {
@@ -607,6 +628,54 @@ export default {
           })
           break;
         }
+        case 'delivery_data': {
+          let delivery_data = {};
+          //delivery_data
+          if(this.deliveryMethod == 2){
+            delivery_data = {
+              service: {
+                main_key: this.courier.code,
+                method: 'door', //Доставка курьером
+                delivery: this.deliveryMethod, //ID из msDelivery - в нашем случае совпадает с this.deliveryMethod
+                address: this.address.text_address,
+              }
+            }
+
+            delivery_data.service[this.courier.code] = {
+              price: {
+                door: {
+                  price: this.courier.price,
+                  time: this.courier.time
+                }
+              }
+            }
+          } else if(this.deliveryMethod == 3){
+            delivery_data = {
+              service: {
+                main_key: this.point.code,
+                method: 'terminal', //Доставка курьером
+                delivery: this.deliveryMethod, //ID из msDelivery - в нашем случае совпадает с this.deliveryMethod
+                address: this.point.point.location.address,
+              }
+            }
+
+            delivery_data.service[this.point.code] = {
+              price: {
+                terminal: {
+                  price: this.point.cost.price,
+                  time: this.point.cost.time
+                }
+              }
+            }
+          }
+
+          this.marketplace_response_api({
+            action: "order/add",
+            key: "my_delivery_data",
+            value: JSON.stringify(delivery_data)
+          })
+          break;
+        }
         
         default:{
           this.marketplace_response_api({
@@ -630,9 +699,12 @@ export default {
     //Выбор курьерской службы
     selectCourier(item){
       this.courier = item;
+      this.orderAdd('delivery_data')
     },
 
     submit() {
+      this.loading_global = true
+      this.loading = true
       this.validateField("receiver");
       this.validatePhone();
       this.validateEmail();
@@ -761,9 +833,6 @@ export default {
         }
       }
 
-      this.orderAdd('delivery_data', JSON.stringify(delivery_data))
-      
-
       const data = {
         receiver: this.orderData.receiver,
         email: this.orderData.email,
@@ -776,6 +845,14 @@ export default {
       this.marketplace_response_api({
         action: 'order/submit',
         data: data
+      }).then((res) => {
+        console.log(res?.data?.data?.data?.redirect)
+        if(res?.data?.data?.data?.redirect){
+          window.location.href = res?.data?.data?.data?.redirect;
+        }
+      }).finally(() => {
+        this.loading = false
+        this.loading_global = false
       })
 
       // setTimeout(() => {
@@ -807,6 +884,7 @@ export default {
 			handler(newVal) {
 				if (newVal) {
 					this.courier = Object.values(newVal)[0];
+          this.orderAdd('delivery_data')
 				}
 			},
 			deep: true,
@@ -834,6 +912,7 @@ export default {
         }).then((res) => {
           this.point.cost = res?.data?.data[this.point.code]?.cost
         }).finally(() => this.loading = false)
+        this.orderAdd('delivery_data')
       }
     }
 	}

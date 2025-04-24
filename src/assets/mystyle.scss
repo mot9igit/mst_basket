@@ -1366,3 +1366,58 @@ h3 + *, .h3 + * {
 .text_address{
     max-width: calc(100% - 32px);
 }
+
+.cursornone{
+    pointer-events: none;
+}
+
+.dart-btn-primary-mini.load,
+.dart-btn-primary.load
+{
+    opacity: 0.8;
+    cursor: not-allowed;
+    color: transparent;
+    position: relative;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 16px;
+        height: 16px;
+        margin: -8px 0 0 -8px;
+        border: 2px solid #fff;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spinner 0.6s linear infinite;
+    }
+}
+
+.dart-btn-secondary-outline.load,
+.dart-btn-secondary.load,
+.dart-btn-secondary-outline-mini.load
+{
+    opacity: 0.8;
+    cursor: not-allowed;
+    color: transparent;
+    position: relative;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 16px;
+        height: 16px;
+        margin: -8px 0 0 -8px;
+        border: 2px solid #282828;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spinner 0.6s linear infinite;
+    }
+}
+  
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}
