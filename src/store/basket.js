@@ -6,7 +6,8 @@ export default {
         delivery_points: [],
         delivery_courier: [],
         basket_address: [],
-        cost: 0
+        cost: 0,
+        count: 0
     },
     actions: {
         get_basket_api ({ commit }, data) {
@@ -104,6 +105,7 @@ export default {
         SET_BASKET_TO_VUEX: (state, data) => {
             state.basket = data.data.data
             state.cost = data.data.cost
+            state.count = data.data.count
         },
         SET_DELIVERY_POINTS_TO_VUEX: (state, data) => {
             state.delivery_points = data.data
@@ -121,6 +123,9 @@ export default {
         },
         cost (state) {
             return state.cost
+        },
+        count (state) {
+            return state.count
         },
         delivery_points (state) {
             return state.delivery_points

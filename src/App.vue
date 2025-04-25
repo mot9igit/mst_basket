@@ -94,7 +94,8 @@
     computed: {
       ...mapGetters([
         'basket',
-        'cost'
+        'cost',
+        'count'
       ]),
     },
     mounted() {
@@ -144,6 +145,23 @@
         this.basket_api({
           action: 'basket/delete'
         }).finally(() => {this.loading = false})
+      }
+    },
+    watch: {
+      cost(newVal) {
+        const costElement = document.querySelector('.kenost-basket-total-cost')
+        if (costElement) {
+          costElement.textContent = `${Number(newVal).toLocaleString('ru')}`
+        }
+      },
+      count(newVal) {
+        const countElement = document.querySelector('.kenost-basket-total-count')
+        if (countElement) {
+          countElement.textContent = `${Number(newVal).toLocaleString('ru')}`
+        }
+      },
+      basket(newVal) {
+        console.log(newVal)
       }
     }
 }

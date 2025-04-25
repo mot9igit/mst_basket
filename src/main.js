@@ -3,6 +3,7 @@ import store from './store'
 import App from './App.vue'
 import Modals from './Modals.vue'
 import { reactive } from 'vue'
+import { watch } from 'vue'
 
 import './assets/main.scss'
 import { createYmaps } from 'vue-yandex-maps'
@@ -17,9 +18,28 @@ const globalState = reactive({
   basket_mini_modal: false
 })
 
+// 🔒 Блокировка скролла при открытии модалок
+watch(
+  () => [globalState.basket_modal, globalState.basket_mini_modal],
+  ([basket_modal, basket_mini_modal]) => {
+    const body = document.body
+    const html = document.documentElement
+
+    if (basket_modal || basket_mini_modal) {
+      body.style.overflow = 'hidden'
+      html.style.overflow = 'hidden'
+    } else {
+      body.style.overflow = ''
+      html.style.overflow = ''
+    }
+  }
+)
+
 // Глобальный обработчик клика по кнопкам "В корзину"
 document.addEventListener('click', async (e) => {
   const target = e.target
+  console.log(target.classList)
+  console.log(target.classList.contains('kenost-vue-button'))
 
   // Кнопка "Добавить в корзину"
   if (target.classList.contains('kenost-vue-button')) {

@@ -1445,3 +1445,13 @@ h3 + *, .h3 + * {
         margin-bottom: 20px;
     }
 }
+
+@media (max-width: 991px) {
+    .addressEdit__content{
+        margin: 0 16px;
+    }
+
+    .address__content{
+        margin: 0 16px;
+    }
+}

@@ -66,7 +66,8 @@
 					:settings="{
 						location: mapSettings.location,
 					}"
-					style="height: 500px"
+					style="height: 100%"
+					class="kenost-select-map"
 					>
 					<yandex-map-default-scheme-layer />
 					<yandex-map-default-features-layer />
@@ -713,5 +714,63 @@
         opacity: 1;
       }
 }
-  </style>
+
+.kenost-select-map{
+	height: 500px !important;
+}
+
+@media (max-width: 991px) {
+	.kenost-select-address{
+		flex-direction: column-reverse;
+	}
+
+	.kenost-select-address__half{
+		width: 100%;
+	}
+
+	.kenost-select-map{
+		height: 200px !important;
+	}
+
+	.kenost-select-address__inputs{
+		height: 350px;
+		padding: 16px 32px;
+	}
+
+	.kenost-select-address .dart-input{
+		width: 100%;
+	}
+
+	.addressEdit__content{
+		overflow-y: auto;
+	}
+}
+
+@media (max-width: 430px) {
+	.kenost-select-address{
+		flex-direction: column-reverse;
+	}
+
+	.input-two{
+		flex-direction: column
+	}
+
+	.popup-btn{
+		position: relative;
+        width: 100%;
+        bottom: 0;
+	}
+
+	.kenost-select-address__inputs{
+		height: auto;
+
+		
+	}
+
+	.kenost-select-address__inputs .mt-3{
+		margin-top: 10px !important;		
+	}
+}
+
+</style>
   
