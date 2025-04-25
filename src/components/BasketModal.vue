@@ -437,9 +437,9 @@ export default {
       courier: null,
       loading_courier: false,
       orderData: {
-        receiver: "Кузнецов Дмитрий Алесеевич",
-        email: "kenostdev@gmail.com",
-        phone: "79194464596",
+        receiver: "",
+        email: "",
+        phone: "",
         promocode: "",
         activePromo: false,
       },

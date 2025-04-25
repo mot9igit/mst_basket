@@ -50,7 +50,7 @@
         <span class="h3">В вашей корзине пока пусто</span>
       </div>
     </div>
-    <button @click="this.modal = true" v-if="Object.keys(basket).length > 0" class="dart-btn dart-btn-primary btn-arrange" :disabled="loading" :class="{loading: loading}">
+    <button @click="openModal" v-if="Object.keys(basket).length > 0" class="dart-btn dart-btn-primary btn-arrange" :disabled="loading" :class="{loading: loading}">
       <span class="dot-loader-none">Оформить заказ</span>
       <span class="dot-loader">
         <span></span>
@@ -72,7 +72,6 @@
       <span></span>
     </span>
   </div>
-  <BasketModal :modal="this.modal" @update:modal="this.modal = $event"/>
 </template>
 
 <script>
@@ -86,7 +85,6 @@
       return {
         loading_basket: true,
         loading: false,
-        modal: false
       }
     },
     components: {
@@ -122,6 +120,9 @@
           store: 48,
           org: 1
         }).finally(() => {this.loading = false})
+      },
+      openModal() {
+        this.$globalState.basket_modal = true
       },
       handleCountChange(count, key){
         this.basket_api({

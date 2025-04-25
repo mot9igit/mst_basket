@@ -1971,7 +1971,7 @@ hr {
       -ms-flex: 1 0 auto;
           flex: 1 0 auto;
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
 
 .dart_footer {
@@ -7676,6 +7676,7 @@ ul {
 
 .mobile-basket {
   position: fixed;
+  top: 0;
   right: 0;
   z-index: 20;
   height: 100dvh;
