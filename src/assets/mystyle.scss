@@ -1446,6 +1446,32 @@ h3 + *, .h3 + * {
     }
 }
 
+.kenost-mobile-bar{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    &__link{
+        background: #F00;
+        height: 49px;
+        width: 59px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+
+        svg{
+            fill: #FFF;
+            stroke: #FFF;
+        }
+    }
+
+    button{
+        margin: 0 !important;
+    }
+}
+
 @media (max-width: 991px) {
     .addressEdit__content{
         margin: 0 16px;

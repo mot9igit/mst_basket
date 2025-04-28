@@ -42,7 +42,7 @@
     </div>
   </div>
   <!-- {{ this.editAdressData }} -->
-	<AdressEdit :modal="editModal" @update:modal="this.editModal = $event" :address="this.editAdressData"/>
+	<AdressEdit :key="this.editAdressData" :modal="editModal" @update:modal="this.editModal = $event" :address="this.editAdressData"/>
 </template>
 
 <script>

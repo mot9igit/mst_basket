@@ -151,13 +151,21 @@
       cost(newVal) {
         const costElement = document.querySelector('.kenost-basket-total-cost')
         if (costElement) {
-          costElement.textContent = `${Number(newVal).toLocaleString('ru')}`
+          if(Number(newVal)){
+            costElement.textContent = `${Number(newVal).toLocaleString('ru')} ₽`
+          } else {
+            costElement.textContent = ''
+          }
         }
       },
       count(newVal) {
         const countElement = document.querySelector('.kenost-basket-total-count')
         if (countElement) {
-          countElement.textContent = `${Number(newVal).toLocaleString('ru')}`
+          if(Number(newVal)){
+            countElement.textContent = `${Number(newVal).toLocaleString('ru')} шт.`
+          } else {
+            countElement.textContent = ''
+          }
         }
       },
       basket(newVal) {

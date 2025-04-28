@@ -222,25 +222,27 @@
                 </div>
               </template>
               
-              <button type="button" v-else :disabled="this.loading_courier" @click="selectCourier(delivery)" class="kenost-courier-delivery__card" :class="{'active': delivery.code == this.courier?.code}" v-for="delivery in delivery_courier" :key="delivery.code">
-                <div v-if="loading_courier">
-                  <div class="kenost-skeleton kenost-skeleton__image"></div>
-                  <div class="kenost-skeleton kenost-skeleton__name"></div>
-                  <div class="kenost-skeleton kenost-skeleton__price"></div>
-                </div>
-                <template v-else>
-                  <img class="kenost-courier-delivery__image" :src="'https://mst.tools'+delivery.logo" alt="">
-                  <div class="kenost-courier-delivery__name" >{{ delivery.name }}</div>
-                  <div class="kenost-courier-delivery__info">
-                    <div class="kenost-courier-delivery__price" :class="{'kenost-courier-delivery__best': delivery.best}">{{(delivery.price).toLocaleString('ru')}} ₽</div>
-                    · 
-                    <div class="kenost-courier-delivery__time" v-if="delivery.time == 'express'">Как можно скорее</div>
-                    <div class="kenost-courier-delivery__time" v-else-if="delivery.time">{{pluralizeDays(delivery.time)}}</div>
+              <template v-else v-for="delivery in delivery_courier" :key="delivery.code">
+                <button v-if="delivery.price" type="button" :disabled="this.loading_courier" @click="selectCourier(delivery)" class="kenost-courier-delivery__card" :class="{'active': delivery.code == this.courier?.code}">
+                  <div v-if="loading_courier">
+                    <div class="kenost-skeleton kenost-skeleton__image"></div>
+                    <div class="kenost-skeleton kenost-skeleton__name"></div>
+                    <div class="kenost-skeleton kenost-skeleton__price"></div>
                   </div>
-                  <svg v-if="delivery.code == this.courier?.code" class="kenost-courier-delivery__icon" data-icon-name="CheckRound" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="height: 20px;"><path d="M18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2C14.4183 2 18 5.58172 18 10ZM14.5657 8.16569C14.8781 7.85327 14.8781 7.34673 14.5657 7.03431C14.2533 6.7219 13.7467 6.7219 13.4343 7.03431L9.2 11.2686L7.36568 9.43431C7.05327 9.12189 6.54673 9.12189 6.23431 9.43431C5.9219 9.74673 5.9219 10.2533 6.23431 10.5657L8.63432 12.9657C8.94673 13.2781 9.45327 13.2781 9.76569 12.9657L14.5657 8.16569Z"></path></svg>
-                </template>
-                
-              </button>
+                  <template v-else>
+                    <img class="kenost-courier-delivery__image" :src="'https://mst.tools'+delivery.logo" alt="">
+                    <div class="kenost-courier-delivery__name" >{{ delivery.name }}</div>
+                    <div class="kenost-courier-delivery__info">
+                      <div class="kenost-courier-delivery__price" :class="{'kenost-courier-delivery__best': delivery.best}">{{(delivery.price).toLocaleString('ru')}} ₽</div>
+                      · 
+                      <div class="kenost-courier-delivery__time" v-if="delivery.time == 'express'">Как можно скорее</div>
+                      <div class="kenost-courier-delivery__time" v-else-if="delivery.time">{{pluralizeDays(delivery.time)}}</div>
+                    </div>
+                    <svg v-if="delivery.code == this.courier?.code" class="kenost-courier-delivery__icon" data-icon-name="CheckRound" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style="height: 20px;"><path d="M18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2C14.4183 2 18 5.58172 18 10ZM14.5657 8.16569C14.8781 7.85327 14.8781 7.34673 14.5657 7.03431C14.2533 6.7219 13.7467 6.7219 13.4343 7.03431L9.2 11.2686L7.36568 9.43431C7.05327 9.12189 6.54673 9.12189 6.23431 9.43431C5.9219 9.74673 5.9219 10.2533 6.23431 10.5657L8.63432 12.9657C8.94673 13.2781 9.45327 13.2781 9.76569 12.9657L14.5657 8.16569Z"></path></svg>
+                  </template>
+                  
+                </button>
+              </template>
             </div>
 
 
@@ -288,16 +290,16 @@
                     type="text"
                     name="phone"
                     id="order_phone"
+                    ref="phoneInput"
                     v-model="orderData.phone"
-                    :disabled="this.loading_global"
-                    @input="formatPhone"
+                    :disabled="loading_global"
                     @blur="() => {
-                      validatePhone
-                      orderAdd('phone')
+                      validatePhone();
+                      orderAdd('phone');
                     }"
                     placeholder="+7 999 123-45-67"
-                    maxlength="18"
                   />
+
                   <span class="error-message" v-if="errors.phone">{{
                     errors.phone
                   }}</span>
@@ -409,6 +411,8 @@ import Adress from "./Adress.vue"
 import { mapActions, mapGetters } from "vuex";
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+import Cleave from 'cleave.js';
+import 'cleave.js/dist/addons/cleave-phone.ru';
 
 export default {
   name: "BasketModal",
@@ -459,6 +463,16 @@ export default {
     this.get_basket_api({
       action: "basket/get",
     }).finally(() => (this.loading = false));
+
+    this.phoneMask = new Cleave(this.$refs.phoneInput, {
+      phone: true,
+      phoneRegionCode: 'RU',
+      prefix: '+7',
+      noImmediatePrefix: false,
+      delimiters: ['(', ') ', '-', '-'],
+      blocks: [2, 3, 3, 2, 2],
+      numericOnly: true
+    });
   },
   methods: {
     ...mapActions([
@@ -538,36 +552,17 @@ export default {
       });
     },
 
-    // Маска для телефона
-    formatPhone(event) {
-      let value = event.target.value.replace(/\D/g, "");
-      let formattedValue = "+7 ";
-
-      if (value.length > 1) {
-        value = value.substring(1);
-      }
-
-      if (value.length > 0) {
-        formattedValue += "(" + value.substring(0, 3);
-      }
-      if (value.length > 3) {
-        formattedValue += ") " + value.substring(3, 6);
-      }
-      if (value.length > 6) {
-        formattedValue += "-" + value.substring(6, 8);
-      }
-      if (value.length > 8) {
-        formattedValue += "-" + value.substring(8, 10);
-      }
-
-      this.orderData.phone = formattedValue;
-    },
-
     // Валидация телефона
     validatePhone() {
-      const phoneDigits = this.orderData.phone.replace(/\D/g, "");
-      if (phoneDigits.length !== 11) {
-        this.errors.phone = "Введите корректный номер телефона";
+      let phoneDigits = (this.orderData.phone || '').replace(/\D/g, '');
+
+      // Если больше 11 цифр — обрезаем лишнее
+      if (phoneDigits.length > 11) {
+        phoneDigits = phoneDigits.substring(0, 11);
+      }
+
+      if (phoneDigits.length !== 11 || !phoneDigits.startsWith('7')) {
+        this.errors.phone = "Введите корректный номер телефона в формате +7 (XXX) XXX-XX-XX";
       } else {
         this.errors.phone = "";
       }
@@ -629,14 +624,14 @@ export default {
           if(this.deliveryMethod == 2){
             delivery_data = {
               service: {
-                main_key: this.courier.code,
+                main_key: this.courier?.code,
                 method: 'door', //Доставка курьером
                 delivery: this.deliveryMethod, //ID из msDelivery - в нашем случае совпадает с this.deliveryMethod
                 address: this.address.text_address,
               }
             }
 
-            delivery_data.service[this.courier.code] = {
+            delivery_data.service[this.courier?.code] = {
               price: {
                 door: {
                   price: this.courier.price,
@@ -712,6 +707,8 @@ export default {
           autoClose: 3000,
           type: "error",
         });
+        this.loading = false
+        this.loading_global = false
         return;
       }
 
@@ -721,6 +718,8 @@ export default {
           autoClose: 3000,
           type: "error",
         });
+        this.loading = false
+        this.loading_global = false
         return;
       }
 
@@ -729,6 +728,8 @@ export default {
           autoClose: 3000,
           type: "error",
         });
+        this.loading = false
+        this.loading_global = false
         return;
       }
 
@@ -878,7 +879,9 @@ export default {
     delivery_courier: {
 			handler(newVal) {
 				if (newVal) {
-					this.courier = Object.values(newVal)[0];
+          if(Object.values(newVal)[0]?.price){
+            this.courier = Object.values(newVal)[0];
+          }
           this.orderAdd('delivery_data')
 				}
 			},
