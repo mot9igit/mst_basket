@@ -889,6 +889,9 @@ export default {
 			immediate: true // если хочешь, чтобы сработал при первом рендере
 		},
     cost (newVal) {
+      if(newVal == 0){
+        this.closeModal();
+      }
       if(this.address){
         this.loading = true
         //Обновляем цену доставки курьером
