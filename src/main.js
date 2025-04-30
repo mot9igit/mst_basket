@@ -38,8 +38,8 @@ watch(
 // Глобальный обработчик клика по кнопкам "В корзину"
 document.addEventListener('click', async (e) => {
   const target = e.target
-  console.log(target.classList)
-  console.log(target.classList.contains('kenost-vue-button'))
+  // console.log(target.classList)
+  // console.log(target.classList.contains('kenost-vue-button'))
 
   // Кнопка "Добавить в корзину"
   if (target.classList.contains('kenost-vue-button')) {
@@ -69,8 +69,8 @@ document.addEventListener('click', async (e) => {
   }
 
   // Кнопка для показа мини-модалки корзины
-  if (target.classList.contains('kenost-vue-basket-modal-change')) {
-    globalState.basket_mini_modal = true
+  if (target.closest('.kenost-vue-basket-modal-change')) {
+    globalState.basket_mini_modal = true;
   }
 })
 

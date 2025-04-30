@@ -1,6 +1,9 @@
 <template>
   <div class="address" @click="closeModal" :class="{ show: modal }">
     <div class="address__content" @click.stop>
+		<div class="kenost-modal-closer" @click="closeModal">
+			<svg @click="closeModal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+		</div>
 			<div class="address__content-scroll">
 					<span class="h1-mini">Выберите адрес доставки</span>
 					<div class="kenost-address" v-for="item in basket_address" @click="this.selectAddress = item">

@@ -1,6 +1,9 @@
 <template>
   <div class="points" @click="closeModal" :class="{ show: modal }">
     <div class="points__content" @click.stop>
+      <div class="kenost-modal-closer" @click="closeModal">
+        <svg @click="closeModal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </div>
       <span class="h1-mini">Выберите пункт выдачи</span>
       <div class="kenost-map">
         <yandex-map
@@ -25,25 +28,30 @@
           </template>
 
           <!-- Обработка отдельных точек -->
-          <yandex-map-marker
-            v-for="(point, index) in delivery_points?.points"
-            :key="'point-' + index"
-            :settings="{ coordinates: [Number(point.coords.longitude), Number(point.coords.latitude)] }"
-            @click="selectPoint(point)"
-          >
-            <div class="marker">
-              <div v-if="currentZoom >= 15" class="marker-label">
-                {{ point.delivery_name }} {{ this.delivery[point.delivery_code][point.fias_guid]?.length == 0? '' : '' }}
+            <template
+              v-for="(point, index) in delivery_points?.points"
+              :key="'point-' + index"
+            >
+            <template v-if="this.delivery[point?.delivery_code][point?.fias_guid]?.price == 0"></template>
+            <yandex-map-marker
+              v-else
+              :settings="{ coordinates: [Number(point?.coords?.longitude), Number(point?.coords?.latitude)] }"
+              @click="selectPoint(point)"
+            >
+              <div class="marker">
+                <div v-if="currentZoom >= 15" class="marker-label">
+                  {{ point.delivery_name }}, {{ point.type == 'PVZ'? "ПВЗ" : point.type == 'POSTAMAT'? "постамат" : '' }} <br /> {{ this.delivery[point.delivery_code][point.fias_guid]?.length == 0? this.getPrice(point.fias_guid, point.delivery_code) : `${Number(this.delivery[point.delivery_code][point.fias_guid]?.price).toLocaleString('ru')}  ₽, ${pluralizeDays(this.delivery[point.delivery_code][point.fias_guid]?.time)}` }}
+                </div>
+                <div class="custom-marker">
+                  <img
+                    :src="'https://mst.tools' + point.delivery_logo"
+                    :alt="point.name"
+                    class="marker-icon"
+                  />
+                </div>
               </div>
-              <div class="custom-marker">
-                <img
-                  :src="'https://mst.tools' + point.delivery_logo"
-                  :alt="point.name"
-                  class="marker-icon"
-                />
-              </div>
-            </div>
-          </yandex-map-marker>
+            </yandex-map-marker>
+          </template>
 
           <yandex-map-listener :settings="{ onUpdate: handleMapUpdate }" />
         </yandex-map>
@@ -54,15 +62,18 @@
             <div class="popup-close" @click="selectedPoint = null">✕</div>
           </div>
           <div class="popup-body">
-            <div class="pipup-name">{{ selectedPoint.name }}</div>
-            <div v-if="selectedPoint.delivery_name === 'СДЭК'">
-              {{ pluralizeDays(delivery_points.cdek.cost.time) }} · 
-              <span class="old-price">{{ (Number(delivery_points.cdek.cost.price) * 1.2).toLocaleString('ru') }} ₽</span> 
-              <b>{{ delivery_points.cdek.cost.price.toLocaleString('ru') }} ₽</b>
+            <div class="pipup-name">
+              {{ selectedPoint.delivery_name }}, 
+              {{ selectedPoint.type === 'PVZ' ? "пункт выдачи заказов" : selectedPoint.type === 'POSTAMAT' ? "постамат" : '' }}
+            </div>
+            <div>
+              {{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${pluralizeDays(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.time)}` }}  · 
+              <span class="old-price">{{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${Math.round(Number(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price) * 1.2).toLocaleString('ru')}` }} ₽</span> 
+              <b>{{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${Number(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price).toLocaleString('ru')}` }} ₽</b>
             </div>
             <div class="popup-work" v-if="selectedPoint.work_time">{{ selectedPoint.work_time }}</div>
           </div>
-          <button class="popup-btn mt-2" @click="choosePoint(selectedPoint)">Выбрать пункт</button>
+          <button :disabled="this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0 || this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price?.price == 0" class="popup-btn mt-2" @click="choosePoint(selectedPoint)">Выбрать пункт</button>
         </div>
       </div>
     </div>
@@ -94,7 +105,7 @@ export default {
       mapSettings: {
         location: {
           center: [37.620393, 55.75396],
-          zoom: 10
+          zoom: 16
         }
       },
       currentZoom: 10,
@@ -112,7 +123,9 @@ export default {
       zoomThreshold: 1,
       lastZoom: 10,
       lastBounds: null,
-      clusterRadius: 50000 // Начальное значение радиуса кластеризации в метрах
+      isLoad: false,
+      clusterRadius: 50000, // Начальное значение радиуса кластеризации в метрах
+      fetchFIas: []
     }
   },
   components: {
@@ -123,7 +136,7 @@ export default {
     YandexMapListener
   },
   computed: {
-    ...mapGetters(["delivery_points"]),
+    ...mapGetters(["delivery_points", "cost"]),
     clusters() {
       return this.delivery_points?.data?.clusters || []
     },
@@ -135,7 +148,7 @@ export default {
     this.initMap();
   },
   methods: {
-    ...mapActions(["delivery_points_api"]),
+    ...mapActions(["delivery_points_api", "marketplace_response_api"]),
     initMap() {
       if (this.delivery_points?.data?.position) {
         this.mapSettings.location.center = [
@@ -148,9 +161,26 @@ export default {
     closeModal() {
       this.$emit('update:modal', false)
     },
-    getPrice(fias_guid){
+    getPrice(fias_guid, code){
+      if(!fias_guid || !code){
+        return;
+      }
+      if(!this.fetchFIas.includes(`${fias_guid}-${code}`)){
+        this.fetchFIas.push(`${fias_guid}-${code}`)
+        this.marketplace_response_api({
+          action: 'get/price/fias/delivery',
+          fias: fias_guid,
+          code: code
+        }).then((res) => {
+          if(res.data.data){
+            this.delivery[code][fias_guid] = res.data.data;
+          } else {
+            this.delivery[code][fias_guid].price = 0;
+          }
+        })
+      }
       //Имитация запроса цены
-      console.log(fias_guid)
+      //console.log(fias_guid)
     },
     handleMapUpdate(e) {
       if (e.type === 'update' && e.location) {
@@ -166,29 +196,21 @@ export default {
         // Рассчитываем оптимальный радиус кластеризации
         this.clusterRadius = this.calculateClusterRadius(newZoom, e.location.bounds);
         
-        const zoomChanged = Math.abs(newZoom - this.lastZoom) >= this.zoomThreshold;
-        const boundsChanged = !this.lastBounds || 
-          Math.abs(newBounds.top - this.lastBounds.top) > 0.1 ||
-          Math.abs(newBounds.bottom - this.lastBounds.bottom) > 0.1 ||
-          Math.abs(newBounds.left - this.lastBounds.left) > 0.1 ||
-          Math.abs(newBounds.right - this.lastBounds.right) > 0.1;
+        // Всегда обновляем значения
+        this.bounds = newBounds;
+        this.currentZoom = newZoom;
+        this.lastZoom = newZoom;
+        this.lastBounds = newBounds;
         
-        if (zoomChanged || boundsChanged) {
-          this.bounds = newBounds;
-          this.currentZoom = newZoom;
-          this.lastZoom = newZoom;
-          this.lastBounds = newBounds;
-          
-          clearTimeout(this.debounceTimer);
-          
-          this.debounceTimer = setTimeout(() => {
-            const now = Date.now();
-            if (now - this.lastRequestTime > this.requestCooldown) {
-              this.fetchPoints();
-              this.lastRequestTime = now;
-            }
-          }, 300);
-        }
+        clearTimeout(this.debounceTimer);
+        
+        this.debounceTimer = setTimeout(() => {
+          const now = Date.now();
+          if (now - this.lastRequestTime > this.requestCooldown) {
+            this.fetchPoints();
+            this.lastRequestTime = now;
+          }
+        }, 300);
       }
     },
     calculateClusterRadius(zoom, bounds) {
@@ -228,19 +250,18 @@ export default {
           zoom: this.currentZoom,
           clusterRadius: Math.round(this.clusterRadius) // Передаем рассчитанный радиус
         });
+      } else {
+        this.delivery_points_api({
+          action: "points"
+        });
       }
     },
     selectPoint(point) {
       this.selectedPoint = point;
     },
     choosePoint(point) {
-      let cost = null;
-      let code = null;
-      if (point.delivery_name === 'СДЭК') {
-        cost = this.delivery_points.cdek?.cost;
-        code = "cdek";
-      }
-      this.$emit('update:point', { point: this.selectedPoint, cost: cost, code: code });
+      let cost = this.delivery[point.delivery_code][point.fias_guid];
+      this.$emit('update:point', { point: this.selectedPoint, cost: cost, code: point.delivery_code });
       this.closeModal();
     },
     pluralizeDays(n) {
@@ -277,12 +298,13 @@ export default {
   watch: {
     delivery_points: {
       handler(newVal) {
-        // if (newVal?.data?.position) {
-        //   this.mapSettings.location.center = [
-        //     Number(newVal.data.position.geo_lon),
-        //     Number(newVal.data.position.geo_lat)
-        //   ];
-        // }
+        if (newVal?.position && !this.isLoad) {
+          this.mapSettings.location.center = [
+            Number(newVal.position.geo_lon),
+            Number(newVal.position.geo_lat)
+          ];
+          this.isLoad = true;
+        }
 
         if (newVal?.delivery) {
           if(Object.keys(this.delivery).length == 0){
@@ -290,11 +312,24 @@ export default {
           } else {
             this.delivery = this.mergeDeliveryObjects(this.delivery, newVal?.delivery);
           }
-          console.log(this.delivery)
+          //console.log(this.delivery)
         }
       },
       deep: true
-    }
+    },
+    cost (newVal) {
+      this.fetchFIas = []
+      for (const deliveryService in this.delivery) {
+        if (this.delivery.hasOwnProperty(deliveryService)) {
+          const serviceEntries = this.delivery[deliveryService];
+          for (const uuid in serviceEntries) {
+            if (serviceEntries.hasOwnProperty(uuid)) {
+              serviceEntries[uuid] = [];
+            }
+          }
+        }
+      }
+    },
   },
   beforeUnmount() {
     clearTimeout(this.debounceTimer);
@@ -399,6 +434,11 @@ export default {
 }
 .popup-btn:hover {
   background: #222;
+}
+
+.popup-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .kenost-map{

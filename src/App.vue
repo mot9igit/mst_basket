@@ -169,7 +169,7 @@
         }
       },
       basket(newVal) {
-        console.log(newVal)
+        // console.log(newVal)
       }
     }
 }

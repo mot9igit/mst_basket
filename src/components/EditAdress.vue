@@ -1,10 +1,12 @@
 <template>
 	<div class="addressEdit" @click="closeModal" :class="{ show: modal }">
 	  <div class="addressEdit__content" @click.stop>
+		<div class="kenost-modal-closer" @click="closeModal">
+			<svg @click="closeModal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+		</div>
 		<div class="kenost-select-address">
 		  <div class="kenost-select-address__half kenost-select-address__inputs">
-			<h3>{{ address ? "Редактирование адреса" : "Новый адрес" }}</h3>
-  
+			<h3>{{ address ? "Редактирование адреса" : "Новый адрес" }}</h3>  
 			<!-- <div class="dart-input dart-input-text mt-3">
 			  <input
 			  	@blur="setCoordinatesFromAddress"
@@ -150,7 +152,8 @@
 		movement: false,
 		geocodeSuggestions: [],
 		showSuggestions: false,
-		debounceTimer: null
+		debounceTimer: null,
+		myLocate: null
 	  }
 	},
 	components: {
@@ -164,7 +167,9 @@
 	  ...mapGetters([])
 	},
 	mounted() {
-	  
+		this.marketplace_response_api({
+			action: "my/locate"
+		}).then((res) => this.myLocate = res.data.data)
 	},
 	methods: {
 		...mapActions(['marketplace_response_api', "basket_my_address_api"]),
@@ -202,6 +207,11 @@
 				this.dataAdress.street = ""
 				this.dataAdress.house = ""
 				this.centerCoords = [37.620393, 55.75396]
+				this.marketplace_response_api({
+					action: "my/locate"
+				}).then((res) => {
+					this.mapSettings.location.center = res.data?.data?.lat? [Number(res.data?.data?.lng), Number(res.data?.data?.lat)] : [37.620393, 55.75396]
+				})
 			}).finally(() => {
 				this.loading = false
 			});
@@ -400,6 +410,11 @@
 					this.dataAdress.street = ""
 					this.dataAdress.house = ""
 					this.centerCoords = [37.620393, 55.75396]
+					this.marketplace_response_api({
+						action: "my/locate"
+					}).then((res) => {
+						this.mapSettings.location.center = res.data?.data?.lat? [Number(res.data?.data?.lng), Number(res.data?.data?.lat)] : [37.620393, 55.75396]
+					})
 				}
 			},
 			deep: true,
