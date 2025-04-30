@@ -149,13 +149,15 @@
     },
     watch: {
       cost(newVal) {
-        const costElement = document.querySelector('.kenost-basket-total-cost')
-        if (costElement) {
-          if(Number(newVal)){
-            costElement.textContent = `${Number(newVal).toLocaleString('ru')} ₽`
-          } else {
-            costElement.textContent = ''
-          }
+        const costElements = document.querySelectorAll('.kenost-basket-total-cost');
+        if (costElements.length > 0) {
+          costElements.forEach(costElement => {
+            if (Number(newVal)) {
+              costElement.textContent = `${Number(newVal).toLocaleString('ru')} ₽`;
+            } else {
+              costElement.textContent = '';
+            }
+          });
         }
       },
       count(newVal) {
