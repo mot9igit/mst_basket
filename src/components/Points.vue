@@ -73,7 +73,7 @@
             </div>
             <div class="popup-work" v-if="selectedPoint.work_time">{{ selectedPoint.work_time }}</div>
           </div>
-          <button :disabled="this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0 || this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price?.price == 0" class="popup-btn mt-2" @click="choosePoint(selectedPoint)">Выбрать пункт</button>
+          <button :disabled="this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0 || this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price == 0" class="popup-btn mt-2" @click="choosePoint(selectedPoint)">Выбрать пункт</button>
         </div>
       </div>
     </div>

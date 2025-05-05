@@ -401,7 +401,6 @@
       </div>
     </div>
   </div>
-  {{ this.point }}
   <Points :modal="modalPoints"  @update:modal="this.modalPoints = $event" @update:point="this.point = $event"/>
   <Adress :modal="modalAdress" @update:modal="this.modalAdress = $event" @update:address="this.address = $event"/>
 </template>
@@ -643,9 +642,11 @@ export default {
               }
             }
           } else if(this.deliveryMethod == 3){
+
+            console.log(this.point)
             delivery_data = {
               service: {
-                main_key: this.point.delivery_code,
+                main_key: this.point.point.delivery_code,
                 method: 'terminal', //Доставка курьером
                 delivery: this.deliveryMethod, //ID из msDelivery - в нашем случае совпадает с this.deliveryMethod
                 address: this.point.point.address,
@@ -891,6 +892,10 @@ export default {
 			deep: true,
 			immediate: true // если хочешь, чтобы сработал при первом рендере
 		},
+    point (newVal) {
+      console.log(newVal)
+      this.orderAdd('delivery_data')
+    },
     cost (newVal) {
       if(newVal == 0){
         this.closeModal();
