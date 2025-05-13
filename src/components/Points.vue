@@ -4,76 +4,115 @@
       <div class="kenost-modal-closer" @click="closeModal">
         <svg @click="closeModal" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
       </div>
-      <span class="h1-mini">Выберите пункт выдачи</span>
-      <div class="kenost-map">
-        <yandex-map
-          ref="yMap"
-          v-model="map"
-          :settings="mapSettings"
-        >
-          <yandex-map-default-features-layer />
-          <yandex-map-default-scheme-layer />
-
-          <!-- Обработка кластеров -->
-          <template v-if="delivery_points?.clusters?.length">
-            <yandex-map-marker
-              v-for="(cluster, index) in delivery_points.clusters"
-              :key="'cluster-' + index"
-              :settings="{ coordinates: [Number(cluster.coords.longitude), Number(cluster.coords.latitude)] }"
-            >
-              <div class="cluster">
-                {{ cluster.count }}
-              </div>
-            </yandex-map-marker>
-          </template>
-
-          <!-- Обработка отдельных точек -->
-            <template
-              v-for="(point, index) in delivery_points?.points"
-              :key="'point-' + index"
-            >
-            <template v-if="this.delivery[point?.delivery_code][point?.fias_guid]?.price == 0"></template>
-            <yandex-map-marker
-              v-else
-              :settings="{ coordinates: [Number(point?.coords?.longitude), Number(point?.coords?.latitude)] }"
-              @click="selectPoint(point)"
-            >
-              <div class="marker">
-                <div v-if="currentZoom >= 15" class="marker-label">
-                  {{ point.delivery_name }}, {{ point.type == 'PVZ'? "ПВЗ" : point.type == 'POSTAMAT'? "постамат" : '' }} <br /> {{ this.delivery[point.delivery_code][point.fias_guid]?.length == 0? this.getPrice(point.fias_guid, point.delivery_code) : `${Number(this.delivery[point.delivery_code][point.fias_guid]?.price).toLocaleString('ru')}  ₽, ${pluralizeDays(this.delivery[point.delivery_code][point.fias_guid]?.time)}` }}
+      <div class="kenost-points">
+        <div class="kenost-points__list">
+          <span class="h1-mini">Выберите пункт выдачи</span>
+          <div class="kenost-points__list-points">
+            <template v-for="(item) in delivery_points.all_points">
+              <template v-if="this.delivery[item?.delivery_code][item?.fias_guid]?.price == 0"></template>
+              <div class="map-item" v-else>
+                <div class="map-item__title">
+                  <img class="map-item__image" :src="'https://mst.tools' + item.delivery_logo" alt="">
+                  <div>
+                    {{ item.type == "PVZ"? "Пункт выдачи заказов": "" }}
+                    {{ item.delivery_name }}
+                  </div>
                 </div>
-                <div class="custom-marker">
-                  <img
-                    :src="'https://mst.tools' + point.delivery_logo"
-                    :alt="point.name"
-                    class="marker-icon"
-                  />
+                <div class="map-item__address">
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.00002 16.1998C9.00002 16.1998 14.6348 11.1911 14.6348 7.43459C14.6348 4.32258 12.112 1.7998 9.00002 1.7998C5.88801 1.7998 3.36523 4.32258 3.36523 7.43459C3.36523 11.1911 9.00002 16.1998 9.00002 16.1998Z" stroke="#797979"/>
+                    <path d="M10.8002 7.19992C10.8002 8.19403 9.99436 8.99992 9.00025 8.99992C8.00613 8.99992 7.20025 8.19403 7.20025 7.19992C7.20025 6.20581 8.00613 5.39992 9.00025 5.39992C9.99436 5.39992 10.8002 6.20581 10.8002 7.19992Z" stroke="#797979"/>
+                  </svg>
+                  <span class="map-item__address-full">{{ item.address }}</span>
+                </div>
+                <div class="map-item__info">
+                  Доставка:
+                  <span>
+                  {{ this.delivery[item.delivery_code][item.fias_guid]?.length == 0? this.getPrice(item.fias_guid, item.delivery_code) : `${pluralizeDays(this.delivery[item.delivery_code][item.fias_guid]?.time)}` }}
+                  ·
+                  {{ this.delivery[item.delivery_code][item.fias_guid]?.length == 0? this.getPrice(item.fias_guid, item.delivery_code) : `${Number(this.delivery[item.delivery_code][item.fias_guid]?.price).toLocaleString('ru')}` }} ₽
+                  </span>
+                </div>
+                <div class="map-item__bottom">
+                  <span>
+                    {{ item.work_time }}
+                  </span>
+                  <button class="popup-btn-red" @click="choosePoint(item)">Выбрать</button>
                 </div>
               </div>
-            </yandex-map-marker>
-          </template>
+            </template>
+          </div>
+        </div>
+        <div class="kenost-map">
+          <yandex-map
+            ref="yMap"
+            v-model="map"
+            :settings="mapSettings"
+          >
+            <yandex-map-default-features-layer />
+            <yandex-map-default-scheme-layer />
 
-          <yandex-map-listener :settings="{ onUpdate: handleMapUpdate }" />
-        </yandex-map>
-        
-        <div v-if="selectedPoint" class="popup">
-          <div class="popup-header">
-            <strong>{{ selectedPoint.address }}</strong>
-            <div class="popup-close" @click="selectedPoint = null">✕</div>
-          </div>
-          <div class="popup-body">
-            <div class="pipup-name">
-              {{ selectedPoint.delivery_name }}, 
-              {{ selectedPoint.type === 'PVZ' ? "пункт выдачи заказов" : selectedPoint.type === 'POSTAMAT' ? "постамат" : '' }}
+            <!-- Обработка кластеров -->
+            <template v-if="delivery_points?.clusters?.length">
+              <yandex-map-marker
+                v-for="(cluster, index) in delivery_points.clusters"
+                :key="'cluster-' + index"
+                :settings="{ coordinates: [Number(cluster.coords.longitude), Number(cluster.coords.latitude)] }"
+              >
+                <div class="cluster">
+                  {{ cluster.count }}
+                </div>
+              </yandex-map-marker>
+            </template>
+
+            <!-- Обработка отдельных точек -->
+              <template
+                v-for="(point, index) in delivery_points?.points"
+                :key="'point-' + index"
+              >
+              <template v-if="this.delivery[point?.delivery_code][point?.fias_guid]?.price == 0"></template>
+              <yandex-map-marker
+                v-else
+                :settings="{ coordinates: [Number(point?.coords?.longitude), Number(point?.coords?.latitude)] }"
+                @click="selectPoint(point)"
+              >
+                <div class="marker">
+                  <div v-if="currentZoom >= 15" class="marker-label">
+                    {{ point.delivery_name }}, {{ point.type == 'PVZ'? "ПВЗ" : point.type == 'POSTAMAT'? "постамат" : '' }} <br /> {{ this.delivery[point.delivery_code][point.fias_guid]?.length == 0? this.getPrice(point.fias_guid, point.delivery_code) : `${Number(this.delivery[point.delivery_code][point.fias_guid]?.price).toLocaleString('ru')}  ₽, ${pluralizeDays(this.delivery[point.delivery_code][point.fias_guid]?.time)}` }}
+                  </div>
+                  <div class="custom-marker">
+                    <img
+                      :src="'https://mst.tools' + point.delivery_logo"
+                      :alt="point.name"
+                      class="marker-icon"
+                    />
+                  </div>
+                </div>
+              </yandex-map-marker>
+            </template>
+
+            <yandex-map-listener :settings="{ onUpdate: handleMapUpdate }" />
+          </yandex-map>
+          
+          <div v-if="selectedPoint" class="popup">
+            <div class="popup-header">
+              <strong>{{ selectedPoint.address }}</strong>
+              <div class="popup-close" @click="selectedPoint = null">✕</div>
             </div>
-            <div>
-              {{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${pluralizeDays(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.time)}` }}  · 
-              <span class="old-price">{{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${Math.round(Number(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price) * 1.2).toLocaleString('ru')}` }} ₽</span> 
-              <b>{{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${Number(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price).toLocaleString('ru')}` }} ₽</b>
+            <div class="popup-body">
+              <div class="pipup-name">
+                {{ selectedPoint.delivery_name }}, 
+                {{ selectedPoint.type === 'PVZ' ? "пункт выдачи заказов" : selectedPoint.type === 'POSTAMAT' ? "постамат" : '' }}
+              </div>
+              <div>
+                {{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${pluralizeDays(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.time)}` }}  · 
+                <span class="old-price">{{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${Math.round(Number(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price) * 1.2).toLocaleString('ru')}` }} ₽</span> 
+                <b>{{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${Number(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price).toLocaleString('ru')}` }} ₽</b>
+              </div>
+              <div class="popup-work" v-if="selectedPoint.work_time">{{ selectedPoint.work_time }}</div>
             </div>
-            <div class="popup-work" v-if="selectedPoint.work_time">{{ selectedPoint.work_time }}</div>
+            <button :disabled="this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0 || this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price == 0" class="popup-btn mt-2" @click="choosePoint(selectedPoint)">Выбрать пункт</button>
           </div>
-          <button :disabled="this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0 || this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price == 0" class="popup-btn mt-2" @click="choosePoint(selectedPoint)">Выбрать пункт</button>
         </div>
       </div>
     </div>
@@ -261,7 +300,7 @@ export default {
     },
     choosePoint(point) {
       let cost = this.delivery[point.delivery_code][point.fias_guid];
-      this.$emit('update:point', { point: this.selectedPoint, cost: cost, code: point.delivery_code });
+      this.$emit('update:point', { point: point, cost: cost, code: point.delivery_code });
       this.closeModal();
     },
     pluralizeDays(n) {
@@ -421,9 +460,27 @@ export default {
   color: #888;
   margin-right: 4px;
 }
+
+.popup-btn-red{
+  width: fit-content;
+  background: #F00;
+  color: white;
+  border: none;
+  padding: 10px 34px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.4s;
+}
+
+.popup-btn-red:hover{
+  background: #EC0000;
+}
+
 .popup-btn {
   width: 100%;
-  background: #282828;
+  background: #F00;
   color: white;
   border: none;
   padding: 10px;
@@ -433,7 +490,7 @@ export default {
   font-size: 14px;
 }
 .popup-btn:hover {
-  background: #222;
+  background: #EC0000;
 }
 
 .popup-btn:disabled {
@@ -442,7 +499,7 @@ export default {
 }
 
 .kenost-map{
-  height: 500px;
+  height: 600px;
   position: relative;
 }
 
