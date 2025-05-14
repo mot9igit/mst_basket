@@ -802,6 +802,7 @@ export default {
 
       this.orderAdd('payment', 3)
       this.orderAdd('delivery', this.deliveryMethod)
+      this.orderAdd('delivery_data')
 
       if(this.deliveryMethod == 2){
         if(this.address.postal_code){
