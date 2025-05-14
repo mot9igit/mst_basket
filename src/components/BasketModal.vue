@@ -101,33 +101,52 @@
           <template v-for="org in basket" :key="org.id">
             <template v-for="store in org.data" :key="store.id">
               <template v-for="product in store.products" :key="product.id">
-                <div class="kenost-basket-product">
-                  <div class="kenost-basket-product__org">
-                    <img class="kenost-basket-product__img" :src="'https://mst.tools/assets/content/' + org.org.image" alt="">
-                    <h4>Заказ из магазина {{ org.org.name }}</h4>
-                  </div>
-                  <div class="kenost-basket-product__store">
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M9.00002 16.1998C9.00002 16.1998 14.6348 11.1911 14.6348 7.43459C14.6348 4.32258 12.112 1.7998 9.00002 1.7998C5.88801 1.7998 3.36523 4.32258 3.36523 7.43459C3.36523 11.1911 9.00002 16.1998 9.00002 16.1998Z" stroke="#797979"/>
-                      <path d="M10.8002 7.19992C10.8002 8.19403 9.99436 8.99992 9.00025 8.99992C8.00613 8.99992 7.20025 8.19403 7.20025 7.19992C7.20025 6.20581 8.00613 5.39992 9.00025 5.39992C9.99436 5.39992 10.8002 6.20581 10.8002 7.19992Z" stroke="#797979"/>
-                    </svg>
-                    <span>{{ store.data.address_short }}</span>
-                  </div>
-                  <div class="kenost-basket-product__product">
-                    <div class="kenost-basket-product__product-image">
-                      <img :src="'https://mst.tools' + product.image" alt="">
+                <div>
+                  <div class="kenost-basket-product">
+                    <div class="kenost-basket-product__org">
+                      <img class="kenost-basket-product__img" :src="'https://mst.tools/assets/content/' + org.org.image" alt="">
+                      <h4>Заказ из магазина {{ org.org.name }}</h4>
                     </div>
-                    <div class="kenost-basket-product__product-info">
-                      <div class="kenost-basket-product__product-info-data">
-                        <b>{{ product.pagetitle }}</b>
-                        <p>Арт: {{ product?.article }}</p>
-                        <span>В наличии: {{ product.remain.remains }} шт.</span>
-                      </div>
-                      <svg @click="deleteProduct(product.key)" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 6.17647H20M9 3H15M15.5 21H8.5C7.39543 21 6.5 20.0519 6.5 18.8824L6.0434 7.27937C6.01973 6.67783 6.47392 6.17647 7.04253 6.17647H16.9575C17.5261 6.17647 17.9803 6.67783 17.9566 7.27937L17.5 18.8824C17.5 20.0519 16.6046 21 15.5 21Z" stroke="#797979" stroke-width="1.5" stroke-linecap="round"/>
+                    <div class="kenost-basket-product__store">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9.00002 16.1998C9.00002 16.1998 14.6348 11.1911 14.6348 7.43459C14.6348 4.32258 12.112 1.7998 9.00002 1.7998C5.88801 1.7998 3.36523 4.32258 3.36523 7.43459C3.36523 11.1911 9.00002 16.1998 9.00002 16.1998Z" stroke="#797979"/>
+                        <path d="M10.8002 7.19992C10.8002 8.19403 9.99436 8.99992 9.00025 8.99992C8.00613 8.99992 7.20025 8.19403 7.20025 7.19992C7.20025 6.20581 8.00613 5.39992 9.00025 5.39992C9.99436 5.39992 10.8002 6.20581 10.8002 7.19992Z" stroke="#797979"/>
                       </svg>
-
+                      <span>{{ store.data.address_short }}</span>
                     </div>
+                    <div class="kenost-basket-product__product">
+                      <div class="kenost-basket-product__product-image">
+                        <img v-if="product.image" :src="'https://mst.tools' + product.image" alt="">
+                        <img
+                          v-else
+                          src="https://mst.tools/assets/files/img/nopic.png"
+                          :alt="product.pagetitle"
+                        />
+                      </div>
+                      <div class="kenost-basket-product__product-info">
+                        <div class="kenost-basket-product__product-info-data">
+                          <b>{{ product.pagetitle }}</b>
+                          <p>Арт: {{ product?.article }}</p>
+                          <span>В наличии: {{ product.remain.remains }} шт.</span>
+                        </div>
+                        <svg @click="deleteProduct(product.key)" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M4 6.17647H20M9 3H15M15.5 21H8.5C7.39543 21 6.5 20.0519 6.5 18.8824L6.0434 7.27937C6.01973 6.67783 6.47392 6.17647 7.04253 6.17647H16.9575C17.5261 6.17647 17.9803 6.67783 17.9566 7.27937L17.5 18.8824C17.5 20.0519 16.6046 21 15.5 21Z" stroke="#797979" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="kenost-basket-product__bottom">
+                      <Counter
+                        :min="0"
+                        :max="product.remain.remains"
+                        :initial="product.count"
+                        :keyProduct="product.key"
+                        @change="handleCountChange"
+                      />
+                      <div class="kenost-basket-product__price">{{ Number(product.price).toLocaleString("ru") }} ₽</div>
+                    </div>
+                  </div>
+                  <div v-if="product.installment" class="kenost-basket-product__installment">
+                    В рассрочку от {{(Math.ceil((Number(product.price) / 6))).toLocaleString('ru')}} ₽/ мес. на 6 мес.
                   </div>
                 </div>
               </template>
@@ -418,6 +437,7 @@
                     ₽</span>
                 </button>
                 <button
+                  v-if="this.installment_global"
                   @click="submit"
                   class="dart-btn dart-btn-primary btn-arrange pseudo_submit"
                   :disabled="loading || loadingPoint" :class="{loading: loading || loadingPoint}"
@@ -431,9 +451,12 @@
                   <span class="dot-loader-none">
                     <span v-if="this.deliveryMethod == 2 && this.courier">{{((Number(cost) + Number(this.courier.price)) / 6).toLocaleString("ru")}}</span>
                     <span v-else-if="this.deliveryMethod == 3 && this.point">{{((Number(cost) + this.point.cost.price) / 6).toLocaleString("ru")}}</span>
-                    <span v-else>{{(Number(cost) / 6).toLocaleString("ru")}}</span>
+                    <span v-else>{{Math.ceil((Number(cost) / 6)).toLocaleString("ru")}}</span>
                     ₽ мес. / 6 мес.</span>
                 </button>
+                <div class="button-installment-none" v-else>
+                  Для оплаты в рассрочку оставьте в корзине только товары доступные для нее 
+                </div>
               </b></b
             >
           </div>
@@ -476,6 +499,8 @@ export default {
     return {
       modalPoints: false,
       modalAdress: false,
+      installment_global: true,
+      installment: true,
       deliveryMethod: 1,
       point: null,
       address: null,
@@ -930,6 +955,32 @@ export default {
 			deep: true,
 			immediate: true // если хочешь, чтобы сработал при первом рендере
 		},
+    basket (newVal){
+      if(newVal){
+        this.installment_global = true;
+        this.installment = false;
+
+        for (const orgId in newVal) {
+          const org = newVal[orgId];
+          if (org.data) {
+            for (const storeId in org.data) {
+              const store = org.data[storeId];
+              if (store.products) {
+                for (const productKey in store.products) {
+                  const product = store.products[productKey];
+                  
+                  if(product.installment){
+                    this.installment = true
+                  } else {
+                    this.installment_global = false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     cost (newVal) {
       if(newVal == 0){
         this.closeModal();

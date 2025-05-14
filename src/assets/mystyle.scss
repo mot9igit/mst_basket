@@ -1643,6 +1643,10 @@ h3 + *, .h3 + * {
     .kenost-points__list{
         display: none;
     }
+
+    .button-installment-none{
+        font-size: 14px !important;
+    }
 }
 
 .kenost-basket-product{
@@ -1728,5 +1732,89 @@ h3 + *, .h3 + * {
                 }
             }
         }
+    }
+
+    &__bottom{
+        margin-top: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-left: 58px;
+        margin-bottom: 10px;
+    }
+
+    &__price{
+        color: #282828;
+        font-weight: 600;
+        font-size: 18px;
+    }
+
+    &__installment{
+        background: #282828;
+        height: 24px;
+        text-align: center;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        color: #FFFFFF;
+        font-weight: 400;
+        font-size: 14px;
+        border-radius: 0 0 4px 4px;
+        position: relative;
+        bottom: 4px;
+    }
+}
+
+.button-installment-none{
+    border: 1px solid #FF0000;
+    height: 48px;
+    text-align: center;
+    color: #FF0000;
+    font-size: 16px;
+    line-height: 19px;
+    border-radius: 6px;
+    margin-top: 8px;
+    text-wrap: balance;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 800px) {
+    .kenost-basket-product__org h4{
+        font-size: 12px;
+    }
+
+    .kenost-basket-product__store span{
+        font-size: 11px;
+    }
+
+    .kenost-basket-product__store{
+        margin-top: 4px;
+    }
+
+    .kenost-basket-product__product-info-data b {
+        font-size: 14px;
+    }
+
+    .kenost-basket-product__product-info-data p{
+        font-size: 12px;
+    }
+
+    .kenost-basket-product__product-info-data span{
+        font-size: 12px;
+    }
+
+    .kenost-basket-product__product-info svg{
+        width: 20px;
+        height: 20px;
+    }
+
+    .kenost-basket-product__price{
+        font-size: 14px;
+    }
+
+    .dart-order__oplata .dart-btn{
+        font-size: 14px;
     }
 }
