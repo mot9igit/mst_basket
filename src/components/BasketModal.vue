@@ -8,96 +8,6 @@
       </div>
       <div class="dart-order__container">
         <div class="dart-order__left js-order-cart" :class="{'cursornone': this.loading_global}">
-          <!-- <template v-for="org in basket" :key="org.id">
-            <template v-for="store in org.data" :key="store.id">
-              <div class="dart-order__el">
-                <h3>Заказ из магазина {{ org.org.name }}</h3>
-                <div class="dart-order__info dart-order__info-mt">
-                  <img
-                    :src="
-                      'https://mst.tools/assets/content/' + store.data.image
-                    "
-                    alt=""
-                  />
-                  <p class="dart-shop-address" style="background: #50c0e6">
-                    {{ store.data.address_short }}
-                  </p>
-                </div>
-                <div>
-                  <template v-for="product in store.products" :key="product.id">
-                    <div class="dart-procuct-cart product-item">
-                      <meta itemprop="orderQuantity" :content="product.count" />
-                      <meta itemprop="identifier" :content="product.id" />
-                      <meta itemprop="name" :content="product.pagetitle" />
-                      <meta
-                        itemprop="description"
-                        :content="product.description"
-                      />
-                      <meta
-                        itemprop="brand"
-                        :content="product['vendor.name']"
-                      />
-                      <div
-                        itemprop="offers"
-                        itemscope
-                        itemtype="http://schema.org/Offer"
-                      >
-                        <meta itemprop="price" :content="product.price" />
-                        <meta itemprop="priceCurrency" content="RUB" />
-                      </div>
-                      <a :href="product.uri" class="dart-procuct-cart__img">
-                        <img
-                          v-if="product.image"
-                          :src="'https://mst.tools' + product.image"
-                          :alt="product.pagetitle"
-                        />
-                        <img
-                          v-else
-                          src="https://mst.tools/assets/files/img/nopic.png"
-                          :alt="product.pagetitle"
-                        />
-                      </a>
-                      <div class="dart-procuct-cart__info">
-                        <div class="dart-procuct-cart__title">
-                          <a :href="product.uri">{{ product.pagetitle }}</a>
-                          <a
-                            @click="deleteProduct(product.key)"
-                            class="btn-close link-no-style"
-                            ></a>
-                        </div>
-                        <p class="dart-procuct-cart__article">
-                          {{ product?.article }}
-                        </p>
-                        <div class="dart-procuct-cart__count">
-                          <p>
-                            В наличии
-                            <span>{{ product.remain.remains }} шт.</span>
-                          </p>
-                        </div>
-                        <div class="dart-procuct-cart__price">
-                          <Counter
-                            :min="0"
-                            :max="product.remain.remains"
-                            :initial="product.count"
-                            :keyProduct="product.key"
-                            @change="handleCountChange"
-                          />
-                          <div class="order-product-price-and-bonus">
-                            <div class="product-price-order">
-                              <p>
-                                {{ Number(product.price).toLocaleString("ru") }}
-                                ₽
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </template>
-                </div>
-              </div>
-            </template>
-          </template> -->
           <template v-for="org in basket" :key="org.id">
             <template v-for="store in org.data" :key="store.id">
               <template v-for="product in store.products" :key="product.id">
@@ -154,7 +64,7 @@
           </template>
         </div>
         <div class="dart-order__right">
-          <form>
+          <form @submit.prevent="submit">
             <h3>Способы получения</h3>
             <div class="dart-order__delivery-methods" id="deliveries">
               <a
@@ -224,7 +134,6 @@
               </a>
             </div>
 
-
             <div v-if="this.deliveryMethod == 3">
               <a @click="() => {
                 if(!this.loading_global){
@@ -288,7 +197,6 @@
               </template>
             </div>
 
-
             <div class="dart-order__inputs-container">
               <div class="dart-order__all-delivery">
                 <h3>Получатель</h3>
@@ -305,6 +213,7 @@
                       validateField('receiver')
                       orderAdd('receiver')
                     }"
+                    required
                   />
                   <span class="error-message" v-if="errors.receiver">{{
                     errors.receiver
@@ -323,6 +232,7 @@
                       validateEmail
                       orderAdd('email')
                     }"
+                    required
                   />
                   <span class="error-message" v-if="errors.email">{{
                     errors.email
@@ -330,7 +240,7 @@
                 </div>
                 <div class="dart-input dart-input-text mt-2" :class="{'kenost-error': errors.phone}">
                   <input
-                    type="text"
+                    type="tel"
                     name="phone"
                     id="order_phone"
                     ref="phoneInput"
@@ -341,6 +251,7 @@
                       orderAdd('phone');
                     }"
                     placeholder="+7 999 123-45-67"
+                    required
                   />
 
                   <span class="error-message" v-if="errors.phone">{{
@@ -349,117 +260,87 @@
                 </div>
               </div>
             </div>
-          </form>
-          <div class="dart-order__oplata">
-            <div class="dart-order__info-oplata">
-              <!-- <div class="dart-order__list dart-order__list-border">
-                <b>Бонусов будет начислено</b>
-                <b class="dart-order__list-bonus"
-                  ><span id="ms2_order_cart_bonus"
-                    >+{{
-                      Math.round((cost / 100) * 2).toLocaleString("ru")
-                    }}</span
-                  ><img
-                    src="https://mst.tools/assets/templates/img/icons/bonus.svg"
-                    alt="Бонусы MachineStore"
-                /></b>
-              </div> -->
-              <div class="dart-order__list">
-                <b>Товары</b>
-                <b
-                  ><span id="ms2_order_cart_cost">{{
-                    Number(cost).toLocaleString("ru")
-                  }}</span>
-                  ₽</b
-                >
-              </div>
-              <div class="dart-order__list">
-                <b>Доставка</b>
-                <b v-if="this.deliveryMethod == 2 && this.courier"><span id="ms2_order_delivery_cost">{{ Number(this.courier.price).toLocaleString('ru') }}</span> ₽</b>
-                <b v-else-if="this.deliveryMethod == 3 && this.point"><span id="ms2_order_delivery_cost">{{ Number(this.point.cost.price).toLocaleString('ru') }}</span> ₽</b>
-                <b v-else><span id="ms2_order_delivery_cost">0</span> ₽</b>
-              </div>
-              <!-- <div class="dart-order__list dart-order__list-border">
-                <div class="dart-cheackbox-container">
-                  <input
-                    class="dart-cheackbox"
-                    id="debiting-bonus"
-                    type="checkbox"
-                    name="debiting-bonus"
-                  />
-                  <label for="debiting-bonus"><b>Списать бонусы?</b></label>
-                </div>
 
-                <b id="ms2_order_cart_bonus_apply"> </b>
-              </div> -->
-              <b id="ms2_order_cart_bonus_apply"><b> </b></b>
-            </div>
-            <b id="ms2_order_cart_bonus_apply"
-              ><b>
-                <div class="summary-block__title"></div>
-                <div
-                  class="dart-order__promo"
-                  :class="{
-                    active: this.orderData.promocode,
-                    apply: this.orderData.activePromo,
-                  }"
-                >
-                  <div class="dart-input dart-input-text">
-                    <input
-                      :disabled="this.orderData.activePromo || this.loading_global"
-                      type="text"
-                      placeholder="Промокод"
-                      name="promocode"
-                      v-model="this.orderData.promocode"
-                    />
-                  </div>
-                  <div class="dart-order__promo-button" @click="changePromo()">
-                    <a class="dart-btn dart-btn-secondary-mini">{{
-                      this.orderData.activePromo ? "Удалить" : "Применить"
-                    }}</a>
-                  </div>
+            <div class="dart-order__oplata">
+              <div class="dart-order__info-oplata">
+                <div class="dart-order__list">
+                  <b>Товары</b>
+                  <b
+                    ><span id="ms2_order_cart_cost">{{
+                      Number(cost).toLocaleString("ru")
+                    }}</span>
+                    ₽</b
+                  >
                 </div>
-                <button
-                  @click="submit"
-                  class="dart-btn dart-btn-primary btn-arrange pseudo_submit"
-                  :disabled="loading || loadingPoint" :class="{loading: loading || loadingPoint}"
-                >
+                <div class="dart-order__list">
+                  <b>Доставка</b>
+                  <b v-if="this.deliveryMethod == 2 && this.courier"><span id="ms2_order_delivery_cost">{{ Number(this.courier.price).toLocaleString('ru') }}</span> ₽</b>
+                  <b v-else-if="this.deliveryMethod == 3 && this.point"><span id="ms2_order_delivery_cost">{{ Number(this.point.cost.price).toLocaleString('ru') }}</span> ₽</b>
+                  <b v-else><span id="ms2_order_delivery_cost">0</span> ₽</b>
+                </div>
+              </div>
+              
+              <div class="dart-order__promo" :class="{ active: this.orderData.promocode, apply: this.orderData.activePromo }">
+                <div class="dart-input dart-input-text">
+                  <input
+                    :disabled="this.orderData.activePromo || this.loading_global"
+                    type="text"
+                    placeholder="Промокод"
+                    name="promocode"
+                    v-model="this.orderData.promocode"
+                  />
+                </div>
+                <div class="dart-order__promo-button" @click="changePromo()">
+                  <a class="dart-btn dart-btn-secondary-mini">{{
+                    this.orderData.activePromo ? "Удалить" : "Применить"
+                  }}</a>
+                </div>
+              </div>
+              
+              <button
+                type="submit"
+                class="dart-btn dart-btn-primary btn-arrange pseudo_submit"
+                :disabled="loading || loadingPoint" 
+                :class="{loading: loading || loadingPoint}"
+              >
                 <span class="dot-loader">
                   <span></span>
                   <span></span>
                   <span></span>
                 </span>
                 <span class="dot-loader-none">Оплатить</span>
-                  <span class="dot-loader-none">
-                    <span v-if="this.deliveryMethod == 2 && this.courier">{{(Number(cost) + Number(this.courier.price)).toLocaleString("ru")}}</span>
-                    <span v-else-if="this.deliveryMethod == 3 && this.point">{{(Number(cost) + this.point.cost.price).toLocaleString("ru")}}</span>
-                    <span v-else>{{(Number(cost)).toLocaleString("ru")}}</span>
-                    ₽</span>
-                </button>
-                <button
-                  v-if="this.installment_global"
-                  @click="submit"
-                  class="dart-btn dart-btn-primary btn-arrange pseudo_submit"
-                  :disabled="loading || loadingPoint" :class="{loading: loading || loadingPoint}"
-                >
+                <span class="dot-loader-none">
+                  <span v-if="this.deliveryMethod == 2 && this.courier">{{(Number(cost) + Number(this.courier.price)).toLocaleString("ru")}}</span>
+                  <span v-else-if="this.deliveryMethod == 3 && this.point">{{(Number(cost) + this.point.cost.price).toLocaleString("ru")}}</span>
+                  <span v-else>{{(Number(cost)).toLocaleString("ru")}}</span>
+                  ₽</span>
+              </button>
+              
+              <button
+                v-if="this.installment_global"
+                type="submit"
+                class="dart-btn dart-btn-primary btn-arrange pseudo_submit"
+                :disabled="loading || loadingPoint" 
+                :class="{loading: loading || loadingPoint}"
+              >
                 <span class="dot-loader">
                   <span></span>
                   <span></span>
                   <span></span>
                 </span>
                 <span class="dot-loader-none">Купить в рассрочку</span>
-                  <span class="dot-loader-none">
-                    <span v-if="this.deliveryMethod == 2 && this.courier">{{((Number(cost) + Number(this.courier.price)) / 6).toLocaleString("ru")}}</span>
-                    <span v-else-if="this.deliveryMethod == 3 && this.point">{{((Number(cost) + this.point.cost.price) / 6).toLocaleString("ru")}}</span>
-                    <span v-else>{{Math.ceil((Number(cost) / 6)).toLocaleString("ru")}}</span>
-                    ₽ мес. / 6 мес.</span>
-                </button>
-                <div class="button-installment-none" v-else>
-                  Для оплаты в рассрочку оставьте в корзине только товары доступные для нее 
-                </div>
-              </b></b
-            >
-          </div>
+                <span class="dot-loader-none">
+                  <span v-if="this.deliveryMethod == 2 && this.courier">{{((Number(cost) + Number(this.courier.price)) / 6).toLocaleString("ru")}}</span>
+                  <span v-else-if="this.deliveryMethod == 3 && this.point">{{((Number(cost) + this.point.cost.price) / 6).toLocaleString("ru")}}</span>
+                  <span v-else>{{Math.ceil((Number(cost) / 6)).toLocaleString("ru")}}</span>
+                  ₽ мес. / 6 мес.</span>
+              </button>
+              
+              <div class="button-installment-none" v-else>
+                Для оплаты в рассрочку оставьте в корзине только товары доступные для нее 
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -619,11 +500,9 @@ export default {
       });
     },
 
-    // Валидация телефона
     validatePhone() {
       let phoneDigits = (this.orderData.phone || '').replace(/\D/g, '');
 
-      // Если больше 11 цифр — обрезаем лишнее
       if (phoneDigits.length > 11) {
         phoneDigits = phoneDigits.substring(0, 11);
       }
@@ -635,7 +514,6 @@ export default {
       }
     },
 
-    // Валидация email
     validateEmail() {
       const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!re.test(this.orderData.email)) {
@@ -687,13 +565,12 @@ export default {
         }
         case 'delivery_data': {
           let delivery_data = {};
-          //delivery_data
           if(this.deliveryMethod == 2){
             delivery_data = {
               service: {
                 main_key: this.courier?.code,
-                method: 'door', //Доставка курьером
-                delivery: this.deliveryMethod, //ID из msDelivery - в нашем случае совпадает с this.deliveryMethod
+                method: 'door',
+                delivery: this.deliveryMethod,
                 address: this.address.text_address,
               }
             }
@@ -707,11 +584,12 @@ export default {
               }
             }
           } else if(this.deliveryMethod == 3){
+            console.log(this.point)
             delivery_data = {
               service: {
-                main_key: this.point.delivery_code,
-                method: 'terminal', //Доставка курьером
-                delivery: this.deliveryMethod, //ID из msDelivery - в нашем случае совпадает с this.deliveryMethod
+                main_key: this.point.code,
+                method: 'terminal',
+                delivery: this.deliveryMethod,
                 address: this.point.point.address,
               }
             }
@@ -744,7 +622,7 @@ export default {
         }
       }
     },
-    // Общая валидация поля
+
     validateField(field) {
       if (!this.orderData[field].trim()) {
         this.errors[field] = "Это поле обязательно для заполнения";
@@ -753,7 +631,6 @@ export default {
       }
     },
 
-    //Выбор курьерской службы
     selectCourier(item){
       this.courier = item;
       this.orderAdd('delivery_data')
@@ -766,7 +643,6 @@ export default {
       this.validatePhone();
       this.validateEmail();
 
-      // Проверка обязательных полей
       const hasErrors = this.errors.receiver || this.errors.phone || this.errors.email;
 
       if (hasErrors) {
@@ -779,7 +655,6 @@ export default {
         return;
       }
 
-      // Проверка способа доставки
       if (this.deliveryMethod === 2 && !this.address) {
         toast("Выберите адрес доставки.", {
           autoClose: 3000,
@@ -851,20 +726,16 @@ export default {
         }
       }
 
-      // Всё в порядке — отправка заказа
-      // this.loading = true;
-
       const regExp = /[\*\%#&\$\s]/g;
       const phoneClean = this.orderData.phone.replace(regExp, '');
 
       let delivery_data = {};
-      //delivery_data
       if(this.deliveryMethod == 2){
         delivery_data = {
           service: {
             main_key: this.courier.code,
-            method: 'door', //Доставка курьером
-            delivery: this.deliveryMethod, //ID из msDelivery - в нашем случае совпадает с this.deliveryMethod
+            method: 'door',
+            delivery: this.deliveryMethod,
             address: this.address.text_address,
           }
         }
@@ -880,9 +751,9 @@ export default {
       } else if(this.deliveryMethod == 3){
         delivery_data = {
           service: {
-            main_key: this.point.delivery_code,
-            method: 'terminal', //Доставка курьером
-            delivery: this.deliveryMethod, //ID из msDelivery - в нашем случае совпадает с this.deliveryMethod
+            main_key: this.point.code,
+            method: 'terminal',
+            delivery: this.deliveryMethod,
             address: this.point.point.address,
           }
         }
@@ -906,6 +777,8 @@ export default {
         delivery_data: delivery_data
       }
 
+      // console.log(data)
+
       this.marketplace_response_api({
         action: 'order/submit',
         data: data
@@ -918,23 +791,11 @@ export default {
         this.loading = false
         this.loading_global = false
       })
-
-      // setTimeout(() => {
-      //   this.loading = false;
-      //   toast("Заказ успешно оформлен!", {
-      //     autoClose: 3000,
-      //     type: "success",
-      //   });
-      //   this.closeModal();
-      // }, 1000);
     }
-
-
   },
   watch: {
 		address(newVal) {
       this.loading = true
-      // Отправляем запрос на получение доставок курьером
       this.loading_courier = true
       this.delivery_courier_api({
         action: "courier",
@@ -954,7 +815,7 @@ export default {
 				}
 			},
 			deep: true,
-			immediate: true // если хочешь, чтобы сработал при первом рендере
+			immediate: true
 		},
     basket (newVal){
       if(newVal){
@@ -988,7 +849,6 @@ export default {
       }
       if(this.address){
         this.loading = true
-        //Обновляем цену доставки курьером
         this.loading_courier = true
         this.delivery_courier_api({
           action: "courier",
@@ -1002,7 +862,6 @@ export default {
         console.log(this.point)
         if(this.point.point.fias_guid && this.point.point.delivery_code){
           this.loadingPoint = true
-          //Обновляем цену доставки в ПВЗ
           this.marketplace_response_api({
             action: 'get/price/fias/delivery',
             fias: this.point.point.fias_guid,
@@ -1014,7 +873,6 @@ export default {
               this.point = {}
             }
             this.loadingPoint = false
-
           })
         }
         this.orderAdd('delivery_data')
@@ -1023,5 +881,3 @@ export default {
 	}
 };
 </script>
-
-<style scoped></style>
