@@ -9,6 +9,7 @@ import './assets/main.scss'
 import { createYmaps } from 'vue-yandex-maps'
 import Vue3Toastify from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
+import { toast } from 'vue3-toastify';
 
 const app = createApp(App)
 const modals = createApp(Modals)
@@ -53,13 +54,26 @@ document.addEventListener('click', async (e) => {
       target.classList.add('load')
 
       try {
-        await store.dispatch('basket_api', {
+        const res = await store.dispatch('basket_api', {
           action: 'basket/add',
           product_id: productId,
           count: 1,
           store: storeId,
           org: orgId
         })
+
+        if(!res.data.data.error){
+          toast("Товар добавлен в корзину!", {
+            autoClose: 3000,
+            type: "success",
+          });
+        } else {
+          toast(res.data.data.error, {
+            autoClose: 3000,
+            type: 'error',
+          });
+        }
+        
       } catch (error) {
         console.error('Ошибка при добавлении товара:', error)
       } finally {
