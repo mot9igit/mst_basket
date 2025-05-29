@@ -9,7 +9,7 @@
           <span class="h1-mini">Выберите пункт выдачи</span>
           <div class="kenost-points__list-points">
             <template v-for="(item) in delivery_points.all_points">
-              <template v-if="this.delivery[item?.delivery_code][item?.fias_guid]?.price == 0"></template>
+              <template v-if="this.delivery?.[item?.delivery_code]?.[item?.fias_guid]?.time == 0"></template>
               <div class="map-item" v-else>
                 <div class="map-item__title">
                   <img class="map-item__image" :src="'https://mst.tools' + item.delivery_logo" alt="">
@@ -28,9 +28,9 @@
                 <div class="map-item__info">
                   Доставка:
                   <span>
-                  {{ this.delivery[item.delivery_code][item.fias_guid]?.length == 0? this.getPrice(item.fias_guid, item.delivery_code) : `${pluralizeDays(this.delivery[item.delivery_code][item.fias_guid]?.time)}` }}
+                  {{ this.delivery?.[item.delivery_code]?.[item.fias_guid]?.length == 0? this.getPrice(item.fias_guid, item.delivery_code) : `${pluralizeDays(this.delivery?.[item.delivery_code]?.[item.fias_guid]?.time)}` }}
                   ·
-                  {{ this.delivery[item.delivery_code][item.fias_guid]?.length == 0? this.getPrice(item.fias_guid, item.delivery_code) : `${Number(this.delivery[item.delivery_code][item.fias_guid]?.price).toLocaleString('ru')}` }} ₽
+                  {{ this.delivery?.[item.delivery_code]?.[item.fias_guid]?.length == 0? this.getPrice(item.fias_guid, item.delivery_code) : Number(this.delivery?.[item.delivery_code]?.[item.fias_guid]?.price) == 0 ? 'Бесплатно' : `${Number(this.delivery?.[item.delivery_code]?.[item.fias_guid]?.price).toLocaleString('ru')} ₽` }}
                   </span>
                 </div>
                 <div class="map-item__bottom">
@@ -70,7 +70,7 @@
                 v-for="(point, index) in delivery_points?.points"
                 :key="'point-' + index"
               >
-              <template v-if="this.delivery[point?.delivery_code][point?.fias_guid]?.price == 0"></template>
+              <template v-if="this.delivery[point?.delivery_code][point?.fias_guid]?.time == 0"></template>
               <yandex-map-marker
                 v-else
                 :settings="{ coordinates: [Number(point?.coords?.longitude), Number(point?.coords?.latitude)] }"
@@ -111,7 +111,7 @@
               </div>
               <div class="popup-work" v-if="selectedPoint.work_time">{{ selectedPoint.work_time }}</div>
             </div>
-            <button :disabled="this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0 || this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price == 0" class="popup-btn mt-2" @click="choosePoint(selectedPoint)">Выбрать пункт</button>
+            <button :disabled="this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0 || this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.time == 0" class="popup-btn mt-2" @click="choosePoint(selectedPoint)">Выбрать пункт</button>
           </div>
         </div>
       </div>
@@ -200,24 +200,46 @@ export default {
     closeModal() {
       this.$emit('update:modal', false)
     },
-    getPrice(fias_guid, code){
-      if(!fias_guid || !code){
+    //Для сдека - fias_guid, code
+    //Для пвз мст - uuid (id склада), code
+    
+    getPrice(number, code){
+      console.log(number, code)
+      if(!number || !code){
         return;
       }
-      if(!this.fetchFIas.includes(`${fias_guid}-${code}`)){
-        this.fetchFIas.push(`${fias_guid}-${code}`)
-        this.marketplace_response_api({
-          action: 'get/price/fias/delivery',
-          fias: fias_guid,
-          code: code
-        }).then((res) => {
-          if(res.data.data){
-            this.delivery[code][fias_guid] = res.data.data;
-          } else {
-            this.delivery[code][fias_guid].price = 0;
-          }
-        })
+      if(code == "cdek"){
+        if(!this.fetchFIas.includes(`${number}-${code}`)){
+          this.fetchFIas.push(`${number}-${code}`)
+          this.marketplace_response_api({
+            action: 'get/price/fias/delivery',
+            fias: number,
+            code: code
+          }).then((res) => {
+            if(res.data.data){
+              this.delivery[code][number] = res.data.data;
+            } else {
+              this.delivery[code][number].price = 0;
+            }
+          })
+        }
+      } else if(code == "mst"){
+        if(!this.fetchFIas.includes(`${number}-${code}`)){
+          this.fetchFIas.push(`${number}-${code}`)
+          this.marketplace_response_api({
+            action: 'get/price/fias/delivery',
+            uuid: number,
+            code: code
+          }).then((res) => {
+            if(res.data.data){
+              this.delivery[code][number] = res.data.data;
+            } else {
+              this.delivery[code][number].price = 0;
+            }
+          })
+        }
       }
+      
       //Имитация запроса цены
       //console.log(fias_guid)
     },
