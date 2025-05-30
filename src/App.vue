@@ -120,6 +120,12 @@
           count: 1,
           store: 48,
           org: 1
+        }).then((res) => {
+          const form = document
+          let event = new CustomEvent("cart/add", {
+          detail: res.data.data
+        });
+          form.dispatchEvent(event)
         }).finally(() => {this.loading = false})
       },
       openModal() {
@@ -130,6 +136,12 @@
           action: 'basket/change',
           key: key,
           count: count
+        }).then((res) => {
+          const form = document
+          let event = new CustomEvent("cart/change", {
+          detail: res.data.data
+        });
+          form.dispatchEvent(event)
         })
         this.loading = false
       },
@@ -138,12 +150,24 @@
         this.basket_api({
           action: 'basket/delete',
           key: key,
+        }).then((res) => {
+          const form = document
+          let event = new CustomEvent("cart/delete", {
+          detail: res.data.data
+        });
+          form.dispatchEvent(event)
         }).finally(() => {this.loading = false})
       },
       clearBasket(key){
         this.loading = true
         this.basket_api({
           action: 'basket/delete'
+        }).then((res) => {
+          const form = document
+          let event = new CustomEvent("cart/delete", {
+          detail: res.data.data
+        });
+          form.dispatchEvent(event)
         }).finally(() => {this.loading = false})
       }
     },

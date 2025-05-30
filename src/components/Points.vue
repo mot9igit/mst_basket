@@ -25,12 +25,20 @@
                   </svg>
                   <span class="map-item__address-full">{{ item.address }}</span>
                 </div>
-                <div class="map-item__info">
+                <div class="map-item__info" v-if="item.delivery_code != 'mst'">
                   Доставка:
                   <span>
                   {{ this.delivery?.[item.delivery_code]?.[item.fias_guid]?.length == 0? this.getPrice(item.fias_guid, item.delivery_code) : `${pluralizeDays(this.delivery?.[item.delivery_code]?.[item.fias_guid]?.time)}` }}
                   ·
                   {{ this.delivery?.[item.delivery_code]?.[item.fias_guid]?.length == 0? this.getPrice(item.fias_guid, item.delivery_code) : Number(this.delivery?.[item.delivery_code]?.[item.fias_guid]?.price) == 0 ? 'Бесплатно' : `${Number(this.delivery?.[item.delivery_code]?.[item.fias_guid]?.price).toLocaleString('ru')} ₽` }}
+                  </span>
+                </div>
+                <div class="map-item__info" v-else>
+                  Доставка:
+                  <span>
+                  {{ this.delivery?.[item.delivery_code]?.[item.uuid]?.length == 0? this.getPrice(item.uuid, item.delivery_code) : `${pluralizeDays(this.delivery?.[item.delivery_code]?.[item.uuid]?.time)}` }}
+                  ·
+                  {{ this.delivery?.[item.delivery_code]?.[item.uuid]?.length == 0? this.getPrice(item.uuid, item.delivery_code) : Number(this.delivery?.[item.delivery_code]?.[item.uuid]?.price) == 0 ? 'Бесплатно' : `${Number(this.delivery?.[item.delivery_code]?.[item.uuid]?.price).toLocaleString('ru')} ₽` }}
                   </span>
                 </div>
                 <div class="map-item__bottom">
@@ -77,8 +85,11 @@
                 @click="selectPoint(point)"
               >
                 <div class="marker">
-                  <div v-if="currentZoom >= 15" class="marker-label">
+                  <div v-if="currentZoom >= 15 && point.delivery_code != 'mst'" class="marker-label">
                     {{ point.delivery_name }}, {{ point.type == 'PVZ'? "ПВЗ" : point.type == 'POSTAMAT'? "постамат" : '' }} <br /> {{ this.delivery[point.delivery_code][point.fias_guid]?.length == 0? this.getPrice(point.fias_guid, point.delivery_code) : `${Number(this.delivery[point.delivery_code][point.fias_guid]?.price).toLocaleString('ru')}  ₽, ${pluralizeDays(this.delivery[point.delivery_code][point.fias_guid]?.time)}` }}
+                  </div>
+                  <div v-else-if="currentZoom >= 15" class="marker-label">
+                    {{ point.delivery_name }}, {{ point.type == 'PVZ'? "ПВЗ" : point.type == 'POSTAMAT'? "постамат" : '' }} <br /> {{ this.delivery[point.delivery_code][point.uuid]?.length == 0? this.getPrice(point.uuid, point.delivery_code) : `${Number(this.delivery[point.delivery_code][point.uuid]?.price).toLocaleString('ru')}  ₽, ${pluralizeDays(this.delivery[point.delivery_code][point.uuid]?.time)}` }}
                   </div>
                   <div class="custom-marker">
                     <img
@@ -104,10 +115,15 @@
                 {{ selectedPoint.delivery_name }}, 
                 {{ selectedPoint.type === 'PVZ' ? "пункт выдачи заказов" : selectedPoint.type === 'POSTAMAT' ? "постамат" : '' }}
               </div>
-              <div>
+              <div v-if="selectedPoint.delivery_code != 'mst'">
                 {{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${pluralizeDays(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.time)}` }}  · 
                 <span class="old-price">{{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${Math.round(Number(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price) * 1.2).toLocaleString('ru')}` }} ₽</span> 
                 <b>{{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${Number(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price).toLocaleString('ru')}` }} ₽</b>
+              </div>
+              <div v-else>
+                {{ this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.length == 0? this.getPrice(selectedPoint.uuid, selectedPoint.delivery_code) : `${pluralizeDays(this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.time)}` }}  · 
+                <span class="old-price">{{ this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.length == 0? this.getPrice(selectedPoint.uuid, selectedPoint.delivery_code) : `${Math.round(Number(this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.price) * 1.2).toLocaleString('ru')}` }} ₽</span> 
+                <b>{{ this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.length == 0? this.getPrice(selectedPoint.uuid, selectedPoint.delivery_code) : `${Number(this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.price).toLocaleString('ru')}` }} ₽</b>
               </div>
               <div class="popup-work" v-if="selectedPoint.work_time">{{ selectedPoint.work_time }}</div>
             </div>
@@ -204,7 +220,6 @@ export default {
     //Для пвз мст - uuid (id склада), code
     
     getPrice(number, code){
-      console.log(number, code)
       if(!number || !code){
         return;
       }
@@ -318,12 +333,19 @@ export default {
       }
     },
     selectPoint(point) {
+      console.log(point)
       this.selectedPoint = point;
     },
     choosePoint(point) {
-      let cost = this.delivery[point.delivery_code][point.fias_guid];
-      this.$emit('update:point', { point: point, cost: cost, code: point.delivery_code });
-      this.closeModal();
+      if(point.delivery_code == 'mst'){
+        let cost = this.delivery[point.delivery_code][point.uuid];
+        this.$emit('update:point', { point: point, cost: cost, code: point.delivery_code });
+        this.closeModal();
+      } else{
+        let cost = this.delivery[point.delivery_code][point.fias_guid];
+        this.$emit('update:point', { point: point, cost: cost, code: point.delivery_code });
+        this.closeModal();
+      }
     },
     pluralizeDays(n) {
       const mod10 = n % 10;

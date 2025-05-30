@@ -120,22 +120,46 @@ export default {
         count: 1,
         store: 48,
         org: 1
+      }).then((res) => {
+        const form = document
+        let event = new CustomEvent("cart/add", {
+          detail: res.data.data
+        });
+        form.dispatchEvent(event)
       }).finally(() => this.loading = false)
     },
     closeModal(){
         this.$emit("update:modal", false);
     },
     handleCountChange(count, key) {
-      this.basket_api({ action: 'basket/change', key, count })
+      this.basket_api({ action: 'basket/change', key, count }).then((res) => {
+        const form = document
+        let event = new CustomEvent("cart/change", {
+          detail: res.data.data
+        });
+        form.dispatchEvent(event)
+      })
       this.loading = false
     },
     deleteProduct(key) {
       this.loading = true
-      this.basket_api({ action: 'basket/delete', key }).finally(() => this.loading = false)
+      this.basket_api({ action: 'basket/delete', key }).then((res) => {
+        const form = document
+        let event = new CustomEvent("cart/delete", {
+          detail: res.data.data
+        });
+        form.dispatchEvent(event)
+      }).finally(() => this.loading = false)
     },
     clearBasket() {
       this.loading = true
-      this.basket_api({ action: 'basket/delete' }).finally(() => this.loading = false)
+      this.basket_api({ action: 'basket/delete' }).then((res) => {
+        const form = document
+        let event = new CustomEvent("cart/delete", {
+          detail: res.data.data
+        });
+        form.dispatchEvent(event)
+      }).finally(() => this.loading = false)
     }
   }
 }

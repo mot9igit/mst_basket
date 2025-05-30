@@ -465,6 +465,12 @@ export default {
         count: 1,
         store: 48,
         org: 1,
+      }).then((res) => {
+        const form = document
+        let event = new CustomEvent("cart/add", {
+          detail: res.data.data
+        });
+        form.dispatchEvent(event)
       }).finally(() => {
         this.loading = false;
       });
@@ -476,6 +482,12 @@ export default {
         action: "basket/change",
         key: key,
         count: count,
+      }).then((res) => {
+        const form = document
+        let event = new CustomEvent("cart/change", {
+          detail: res.data.data
+        });
+        form.dispatchEvent(event)
       }).finally(() => {
         this.loading = false;
       });
@@ -486,6 +498,12 @@ export default {
       this.basket_api({
         action: "basket/delete",
         key: key,
+      }).then((res) => {
+        const form = document
+        let event = new CustomEvent("cart/delete", {
+          detail: res.data.data
+        });
+        form.dispatchEvent(event)
       }).finally(() => {
         this.loading = false;
       });
@@ -495,6 +513,12 @@ export default {
       this.loading = true;
       this.basket_api({
         action: "basket/delete",
+      }).then((res) => {
+        const form = document
+        let event = new CustomEvent("cart/delete", {
+          detail: res.data.data
+        });
+        form.dispatchEvent(event)
       }).finally(() => {
         this.loading = false;
       });
@@ -591,6 +615,7 @@ export default {
                 method: 'terminal',
                 delivery: this.deliveryMethod,
                 address: this.point.point.address,
+                point: this.point.point
               }
             }
 
@@ -755,6 +780,7 @@ export default {
             method: 'terminal',
             delivery: this.deliveryMethod,
             address: this.point.point.address,
+            point: this.point.point,
           }
         }
 
@@ -777,12 +803,17 @@ export default {
         delivery_data: delivery_data
       }
 
-      // console.log(data)
+      console.log(data)
 
       this.marketplace_response_api({
         action: 'order/submit',
         data: data
       }).then((res) => {
+        const form = document
+        let event = new CustomEvent("order/submit", {
+          detail: res.data.data
+        });
+        form.dispatchEvent(event)
         console.log(res?.data?.data?.data?.redirect)
         if(res?.data?.data?.data?.redirect){
           window.location.href = res?.data?.data?.data?.redirect;
@@ -791,6 +822,8 @@ export default {
         this.loading = false
         this.loading_global = false
       })
+      this.loading = false
+      this.loading_global = false
     }
   },
   watch: {

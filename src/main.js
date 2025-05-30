@@ -63,6 +63,12 @@ document.addEventListener('click', async (e) => {
         })
 
         if(!res.data.data.error){
+          const form = document
+          let event = new CustomEvent("cart/add", {
+            detail: res.data.data
+          });
+          form.dispatchEvent(event)
+
           toast("Товар добавлен в корзину!", {
             autoClose: 3000,
             type: "success",
