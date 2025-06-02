@@ -14,7 +14,8 @@
                 <div>
                   <div class="kenost-basket-product">
                     <div class="kenost-basket-product__org">
-                      <img class="kenost-basket-product__img" :src="'https://mst.tools/assets/content/' + org.org.image" alt="">
+                      <img v-if="org.org.image" class="kenost-basket-product__img" :src="'https://mst.tools/assets/content/' + org.org.image" alt="">
+                      <div class="kenost-shop-mini" v-else>{{ org.org.name[0] }}{{ org.org.name[1] }}</div>
                       <h4>Заказ из магазина {{ org.org.name }}</h4>
                     </div>
                     <div class="kenost-basket-product__store">
@@ -316,29 +317,31 @@
                   ₽</span>
               </button>
               
-              <button
-                v-if="this.installment_global"
-                type="submit"
-                class="dart-btn dart-btn-primary btn-arrange pseudo_submit"
-                :disabled="loading || loadingPoint" 
-                :class="{loading: loading || loadingPoint}"
-              >
-                <span class="dot-loader">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </span>
-                <span class="dot-loader-none">Купить в рассрочку</span>
-                <span class="dot-loader-none">
-                  <span v-if="this.deliveryMethod == 2 && this.courier">{{((Number(cost) + Number(this.courier.price)) / 6).toLocaleString("ru")}}</span>
-                  <span v-else-if="this.deliveryMethod == 3 && this.point">{{((Number(cost) + this.point.cost.price) / 6).toLocaleString("ru")}}</span>
-                  <span v-else>{{Math.ceil((Number(cost) / 6)).toLocaleString("ru")}}</span>
-                  ₽ мес. / 6 мес.</span>
-              </button>
-              
-              <div class="button-installment-none" v-else>
-                Для оплаты в рассрочку оставьте в корзине только товары доступные для нее 
-              </div>
+              <template v-if="this.installment">
+                <button
+                  v-if="this.installment_global"
+                  type="submit"
+                  class="dart-btn dart-btn-primary btn-arrange pseudo_submit"
+                  :disabled="loading || loadingPoint" 
+                  :class="{loading: loading || loadingPoint}"
+                >
+                  <span class="dot-loader">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                  <span class="dot-loader-none">Купить в рассрочку</span>
+                  <span class="dot-loader-none">
+                    <span v-if="this.deliveryMethod == 2 && this.courier">{{((Number(cost) + Number(this.courier.price)) / 6).toLocaleString("ru")}}</span>
+                    <span v-else-if="this.deliveryMethod == 3 && this.point">{{((Number(cost) + this.point.cost.price) / 6).toLocaleString("ru")}}</span>
+                    <span v-else>{{Math.ceil((Number(cost) / 6)).toLocaleString("ru")}}</span>
+                    ₽ мес. / 6 мес.</span>
+                </button>
+                
+                <div class="button-installment-none" v-else>
+                  Для оплаты в рассрочку оставьте в корзине только товары доступные для нее 
+                </div>
+              </template>
             </div>
           </form>
         </div>
@@ -381,6 +384,7 @@ export default {
       modalPoints: false,
       modalAdress: false,
       installment_global: true,
+      installment_is: false,
       installment: true,
       deliveryMethod: 1,
       point: null,
@@ -854,6 +858,7 @@ export default {
       if(newVal){
         this.installment_global = true;
         this.installment = false;
+        this.installment_is = false;
 
         for (const orgId in newVal) {
           const org = newVal[orgId];
@@ -866,6 +871,7 @@ export default {
                   
                   if(product.installment){
                     this.installment = true
+                    this.installment_is = true
                   } else {
                     this.installment_global = false
                   }
