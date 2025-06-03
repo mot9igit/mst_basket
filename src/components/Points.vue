@@ -9,7 +9,7 @@
           <span class="h1-mini">Выберите пункт выдачи</span>
           <div class="kenost-points__list-points">
             <template v-for="(item) in delivery_points.all_points">
-              <template v-if="this.delivery?.[item?.delivery_code]?.[item?.fias_guid]?.time == 0"></template>
+              <template v-if="(item.delivery_code != 'mst' && this.delivery?.[item?.delivery_code]?.[item?.fias_guid]?.time == 0) || (this.delivery?.[item.delivery_code]?.[item.uuid]?.time == 0)"></template>
               <div class="map-item" v-else>
                 <div class="map-item__title">
                   <img class="map-item__image" :src="'https://mst.tools' + item.delivery_logo" alt="">
