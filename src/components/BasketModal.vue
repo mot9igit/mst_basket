@@ -68,7 +68,9 @@
           <form @submit.prevent="submit">
             <h3>Способы получения</h3>
             <div class="dart-order__delivery-methods" id="deliveries">
+              
               <a
+                v-if="pickup"
                 class="dart-btn dart-btn-radio-mini"
                 :class="{ active: this.deliveryMethod === 1 }"
                 @click.prevent="handleDeliveryClick(1)"
@@ -386,6 +388,7 @@ export default {
       installment_global: true,
       installment_is: false,
       installment: true,
+      pickup: false,
       deliveryMethod: 1,
       point: null,
       address: null,
@@ -807,8 +810,6 @@ export default {
         delivery_data: delivery_data
       }
 
-      console.log(data)
-
       this.marketplace_response_api({
         action: 'order/submit',
         data: data
@@ -856,6 +857,7 @@ export default {
 		},
     basket (newVal){
       if(newVal){
+        this.pickup = true;
         this.installment_global = true;
         this.installment = false;
         this.installment_is = false;
@@ -865,6 +867,10 @@ export default {
           if (org.data) {
             for (const storeId in org.data) {
               const store = org.data[storeId];
+              if(store.data.mst_point == 0){
+                this.pickup = false
+                this.handleDeliveryClick(2)
+              }
               if (store.products) {
                 for (const productKey in store.products) {
                   const product = store.products[productKey];

@@ -78,7 +78,7 @@
                 v-for="(point, index) in delivery_points?.points"
                 :key="'point-' + index"
               >
-              <template v-if="this.delivery[point?.delivery_code][point?.fias_guid]?.time == 0"></template>
+              <template v-if="(point.delivery_code != 'mst' && this.delivery?.[point?.delivery_code]?.[point?.fias_guid]?.time == 0) || (this.delivery?.[point.delivery_code]?.[point.uuid]?.time == 0)"></template>
               <yandex-map-marker
                 v-else
                 :settings="{ coordinates: [Number(point?.coords?.longitude), Number(point?.coords?.latitude)] }"
@@ -105,29 +105,30 @@
             <yandex-map-listener :settings="{ onUpdate: handleMapUpdate }" />
           </yandex-map>
           
-          <div v-if="selectedPoint" class="popup">
+          <template v-if="(selectedPoint?.delivery_code != 'mst' && this.delivery?.[selectedPoint?.delivery_code]?.[selectedPoint?.fias_guid]?.time == 0) || (this.delivery?.[selectedPoint?.delivery_code]?.[selectedPoint?.uuid]?.time == 0)"></template>
+          <div v-else-if="selectedPoint" class="popup">
             <div class="popup-header">
-              <strong>{{ selectedPoint.address }}</strong>
+              <strong>{{ selectedPoint?.address }}</strong>
               <div class="popup-close" @click="selectedPoint = null">✕</div>
             </div>
             <div class="popup-body">
               <div class="pipup-name">
-                {{ selectedPoint.delivery_name }}, 
-                {{ selectedPoint.type === 'PVZ' ? "пункт выдачи заказов" : selectedPoint.type === 'POSTAMAT' ? "постамат" : '' }}
+                {{ selectedPoint?.delivery_name }}, 
+                {{ selectedPoint?.type === 'PVZ' ? "пункт выдачи заказов" : selectedPoint?.type === 'POSTAMAT' ? "постамат" : '' }}
               </div>
-              <div v-if="selectedPoint.delivery_code != 'mst'">
-                {{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${pluralizeDays(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.time)}` }}  · 
-                <span class="old-price">{{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${Math.round(Number(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price) * 1.2).toLocaleString('ru')}` }} ₽</span> 
-                <b>{{ this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0? this.getPrice(selectedPoint.fias_guid, selectedPoint.delivery_code) : `${Number(this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.price).toLocaleString('ru')}` }} ₽</b>
+              <div v-if="selectedPoint?.delivery_code != 'mst'">
+                {{ this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.fias_guid]?.length == 0? this.getPrice(selectedPoint?.fias_guid, selectedPoint?.delivery_code) : `${pluralizeDays(this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.fias_guid]?.time)}` }}  · 
+                <span class="old-price">{{ this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.fias_guid]?.length == 0? this.getPrice(selectedPoint?.fias_guid, selectedPoint?.delivery_code) : `${Math.round(Number(this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.fias_guid]?.price) * 1.2).toLocaleString('ru')}` }} ₽</span> 
+                <b>{{ this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.fias_guid]?.length == 0? this.getPrice(selectedPoint?.fias_guid, selectedPoint?.delivery_code) : `${Number(this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.fias_guid]?.price).toLocaleString('ru')}` }} ₽</b>
               </div>
               <div v-else>
-                {{ this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.length == 0? this.getPrice(selectedPoint.uuid, selectedPoint.delivery_code) : `${pluralizeDays(this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.time)}` }}  · 
-                <span class="old-price">{{ this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.length == 0? this.getPrice(selectedPoint.uuid, selectedPoint.delivery_code) : `${Math.round(Number(this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.price) * 1.2).toLocaleString('ru')}` }} ₽</span> 
-                <b>{{ this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.length == 0? this.getPrice(selectedPoint.uuid, selectedPoint.delivery_code) : `${Number(this.delivery[selectedPoint.delivery_code][selectedPoint.uuid]?.price).toLocaleString('ru')}` }} ₽</b>
+                {{ this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.uuid]?.length == 0? this.getPrice(selectedPoint?.uuid, selectedPoint?.delivery_code) : `${pluralizeDays(this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.uuid]?.time)}` }}  · 
+                <span class="old-price">{{ this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.uuid]?.length == 0? this.getPrice(selectedPoint?.uuid, selectedPoint?.delivery_code) : `${Math.round(Number(this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.uuid]?.price) * 1.2).toLocaleString('ru')}` }} ₽</span> 
+                <b>{{ this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.uuid]?.length == 0? this.getPrice(selectedPoint?.uuid, selectedPoint?.delivery_code) : `${Number(this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.uuid]?.price).toLocaleString('ru')}` }} ₽</b>
               </div>
-              <div class="popup-work" v-if="selectedPoint.work_time">{{ selectedPoint.work_time }}</div>
+              <div class="popup-work" v-if="selectedPoint?.work_time">{{ selectedPoint?.work_time }}</div>
             </div>
-            <button :disabled="this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.length == 0 || this.delivery[selectedPoint.delivery_code][selectedPoint.fias_guid]?.time == 0" class="popup-btn mt-2" @click="choosePoint(selectedPoint)">Выбрать пункт</button>
+            <button :disabled="this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.fias_guid]?.length == 0 || this.delivery[selectedPoint?.delivery_code]?.[selectedPoint?.fias_guid]?.time == 0" class="popup-btn mt-2" @click="choosePoint(selectedPoint)">Выбрать пункт</button>
           </div>
         </div>
       </div>
