@@ -819,10 +819,11 @@ export default {
           detail: res.data.data
         });
         form.dispatchEvent(event)
-        console.log(res?.data?.data?.data?.redirect)
-        if(res?.data?.data?.data?.redirect){
-          window.location.href = res?.data?.data?.data?.redirect;
-        }
+        setTimeout(() => {
+          if(res?.data?.data?.data?.redirect){
+            window.location.href = res?.data?.data?.data?.redirect;
+          }
+        }, 2000)
       }).finally(() => {
         this.loading = false
         this.loading_global = false
