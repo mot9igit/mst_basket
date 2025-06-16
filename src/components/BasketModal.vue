@@ -302,7 +302,7 @@
               
               <button
                 type="submit"
-                class="dart-btn dart-btn-primary btn-arrange pseudo_submit"
+                class="dart-btn dart-btn-primary btn-arrange"
                 :disabled="loading || loadingPoint" 
                 :class="{loading: loading || loadingPoint}"
               >
@@ -323,7 +323,7 @@
                 <button
                   v-if="this.installment_global"
                   type="submit"
-                  class="dart-btn dart-btn-primary btn-arrange pseudo_submit"
+                  class="dart-btn dart-btn-primary btn-arrange"
                   :disabled="loading || loadingPoint" 
                   :class="{loading: loading || loadingPoint}"
                 >
@@ -823,7 +823,7 @@ export default {
           if(res?.data?.data?.data?.redirect){
             window.location.href = res?.data?.data?.data?.redirect;
           }
-        }, 2000)
+        }, 500)
       }).finally(() => {
         this.loading = false
         this.loading_global = false
