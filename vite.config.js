@@ -32,10 +32,10 @@ export default defineConfig({
           }
 
           // Остальное (CSS, шрифты, и т.д.) — по умолчанию
-          return 'assets/[name]-[hash][extname]'
+          return 'assets/[name][extname]'
         },
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name].js',
+        entryFileNames: 'assets/[name].js',
       }
     }
   }

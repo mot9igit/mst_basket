@@ -298,8 +298,7 @@
                     this.orderData.activePromo ? "Удалить" : "Применить"
                   }}</a>
                 </div>
-              </div>
-              
+              </div>              
               <button
                 type="submit"
                 class="dart-btn dart-btn-primary btn-arrange"
@@ -668,7 +667,7 @@ export default {
       this.orderAdd('delivery_data')
     },
 
-    submit() {
+    async submit() {
       this.loading_global = true
       this.loading = true
       this.validateField("receiver");
@@ -810,7 +809,7 @@ export default {
         delivery_data: delivery_data
       }
 
-      this.marketplace_response_api({
+      await this.marketplace_response_api({
         action: 'order/submit',
         data: data
       }).then((res) => {
@@ -822,17 +821,22 @@ export default {
         setTimeout(() => {
           if(res?.data?.data?.data?.redirect){
             window.location.href = res?.data?.data?.data?.redirect;
+            this.loading = false
+            this.loading_global = false
           }
         }, 500)
       }).finally(() => {
-        this.loading = false
-        this.loading_global = false
+        // this.loading = false
+        // this.loading_global = false
       })
       this.loading = false
       this.loading_global = false
     }
   },
   watch: {
+    loading(newVal){
+      console.log(newVal);
+    },
 		address(newVal) {
       this.loading = true
       this.loading_courier = true
@@ -905,7 +909,7 @@ export default {
         })
       }
       if(this.point){
-        console.log(this.point)
+        // console.log(this.point)
         if(this.point.point.fias_guid && this.point.point.delivery_code){
           this.loadingPoint = true
           this.marketplace_response_api({
