@@ -90,6 +90,8 @@ document.addEventListener('click', async (e) => {
 
   // Кнопка для показа мини-модалки корзины
   if (target.closest('.kenost-vue-basket-modal-change')) {
+    let event = new CustomEvent("cart/open", {});
+    form.dispatchEvent(event)
     globalState.basket_mini_modal = true;
   }
 })

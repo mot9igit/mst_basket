@@ -808,7 +808,10 @@ export default {
         payment: 3,
         delivery_data: delivery_data
       }
-
+      let event = new CustomEvent("order/submit/click", {
+        detail: data
+      });
+      form.dispatchEvent(event)
       await this.marketplace_response_api({
         action: 'order/submit',
         data: data
