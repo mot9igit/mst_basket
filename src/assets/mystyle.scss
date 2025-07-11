@@ -131,7 +131,9 @@ img {
     overflow-y: auto;
     padding-bottom: 6px;
 }
-
+.mobile-basket[modal="true"] .d-col-basket .basket-container{
+ height: calc(100% - 130px);
+}
 
 .d-col-basket .basket-container__adres {
     font-size: 12px;
@@ -248,7 +250,50 @@ a:hover {
     background: #595959;
     opacity: 0.5;
 }
-
+.basket-close-btn {
+    cursor: pointer; 
+    opacity: 1; 
+    width: 18px !important;
+    height: 18px !important;
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    padding: 0;
+    position: absolute;
+    top:10px;
+    right: 20px;
+}
+.basket-close-btn::before,.basket-close-btn::after {
+    content: "";
+    background-color:  #000000;
+    position: absolute;
+    top:50%;
+    left:0;
+    width: 100%;
+    height: 2px;
+    border-radius: 1px;
+    display: block;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    
+}
+.basket-close-btn::before {
+    transform: rotate(45deg);
+}
+.basket-close-btn::after {   
+    transform: rotate(135deg);
+}
+.basket-close-btn:hover::before,.basket-close-btn:hover::after {
+    background-color:  #F00;
+}
 .d-col-basket .basket-container__article {
     font-size: 14px;
     font-style: normal;
@@ -454,7 +499,9 @@ hr {
     justify-content: space-between;
     margin-bottom: 20px;
 }
-
+.mobile-basket[modal="true"] .d-col-basket .h3 {
+    margin-top: 30px;
+}
 .d-col-basket.loading{
 
     .dot-loader {

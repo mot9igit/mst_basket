@@ -1,6 +1,7 @@
 <template>
     <div class="mobile-basket mobileBasketToggleClose" @click="closeModal" :class="{'show': globalState.basket_mini_modal }">
         <div @click.stop class="d-col-basket" v-if="!loading_basket">
+          <div class="basket-close-btn" @click="closeModal"></div>
             <span class="h3">
                 Корзина
             <div v-if="Object.keys(basket).length > 0" @click="clearBasket()" class="basket-clear-btn">
