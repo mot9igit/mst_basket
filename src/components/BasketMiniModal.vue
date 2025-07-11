@@ -88,6 +88,7 @@ export default {
     const globalState = inject('globalState')
 
     const openModal = () => {
+      const form = document
       let event = new CustomEvent("cart/open/order", {});
       form.dispatchEvent(event)
       globalState.basket_modal = true

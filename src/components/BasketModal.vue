@@ -799,7 +799,7 @@ export default {
           }
         }
       }
-
+      const form = document
       const data = {
         receiver: this.orderData.receiver,
         email: this.orderData.email,
@@ -816,7 +816,6 @@ export default {
         action: 'order/submit',
         data: data
       }).then((res) => {
-        const form = document
         let event = new CustomEvent("order/submit", {
           detail: res.data.data
         });

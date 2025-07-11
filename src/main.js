@@ -87,7 +87,7 @@ document.addEventListener('click', async (e) => {
       }
     }
   }
-
+  const form = document
   // Кнопка для показа мини-модалки корзины
   if (target.closest('.kenost-vue-basket-modal-change')) {
     let event = new CustomEvent("cart/open", {});
