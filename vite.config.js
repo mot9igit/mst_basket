@@ -16,7 +16,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/rest': {
-        target: 'https://mst.tools/',
+        target: 'https://dev.mst.tools/',
         changeOrigin: true,
         secure: true
       }
