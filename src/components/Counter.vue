@@ -32,7 +32,7 @@
         type: Number,
         default: 10
       },
-      multy: { 
+      multiplicity: { 
         type: Number,
         default: 1
       },
@@ -69,8 +69,8 @@
       },
       increment() {
         if (this.count < this.max) {
-          if(Number(this.multy) > 1){
-            this.count = this.count + Number(this.multy);
+          if(Number(this.multiplicity) > 1){
+            this.count = this.count + Number(this.multiplicity);
           }else{
             this.count++;
           }
@@ -79,8 +79,11 @@
       },
       decrement() {
         if (this.count > this.min) {
-          if(Number(this.multy) > 1){
-            this.count = this.count - Number(this.multy);
+          if(Number(this.multiplicity) > 1){
+            this.count = this.count - Number(this.multiplicity);
+            if(this.count<0){
+              this.count = 0
+            }
           }else{
             this.count--;
           }

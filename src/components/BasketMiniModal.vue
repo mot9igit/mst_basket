@@ -33,7 +33,7 @@
                             @click="this.loading = true"
                             :min="0" 
                             :max="product.remain.remains" 
-                            :multy="1"
+                            :multiplicity="product.multiplicity"
                             :initial="product.count"
                             :keyProduct="product.key"
                             @change="handleCountChange" 
@@ -139,8 +139,8 @@ export default {
     closeModal(){
         this.$emit("update:modal", false);
     },
-    handleCountChange(count, key, multy) {
-      this.basket_api({ action: 'basket/change', key, count, multy }).then((res) => {
+    handleCountChange(count, key, multiplicity) {
+      this.basket_api({ action: 'basket/change', key, count, multiplicity }).then((res) => {
         const form = document
         let event = new CustomEvent("cart/change", {
           detail: res.data.data

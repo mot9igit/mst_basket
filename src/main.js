@@ -47,11 +47,7 @@ document.addEventListener('click', async (e) => {
     const productId = parseInt(target.dataset.kenostIdProduct)
     const storeId = parseInt(target.dataset.kenostStore || 48)
     const orgId = parseInt(target.dataset.kenostOrg || 1)
-    let count_multy = parseInt(1);
-    if(count_multy<1){
-      count_multy = 1; 
-    }
-
+    
     if (!storeId || !orgId) return null
 
     if (!isNaN(productId)) {
@@ -61,7 +57,7 @@ document.addEventListener('click', async (e) => {
         const res = await store.dispatch('basket_api', {
           action: 'basket/add',
           product_id: productId,
-          count: count_multy,
+          count: 1,
           store: storeId,
           org: orgId
         })
