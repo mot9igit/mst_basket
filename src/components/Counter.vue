@@ -13,7 +13,7 @@
       <button 
         class="counter-btn counter-btn--plus" 
         @click="increment"
-        :disabled="count >= max"
+        :disabled="count >= max-multiplicity"
       >
         +
       </button>
@@ -68,9 +68,10 @@
         }, 500);
       },
       increment() {
+
         if (this.count < this.max) {
-          if(Number(this.multiplicity) > 1){
-            this.count = this.count + Number(this.multiplicity);
+          if(this.multiplicity > 1){
+            this.count = this.count + this.multiplicity;
           }else{
             this.count++;
           }
@@ -79,8 +80,8 @@
       },
       decrement() {
         if (this.count > this.min) {
-          if(Number(this.multiplicity) > 1){
-            this.count = this.count - Number(this.multiplicity);
+          if(this.multiplicity > 1){
+            this.count = this.count - this.multiplicity;
             if(this.count<0){
               this.count = 0
             }

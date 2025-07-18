@@ -26,14 +26,14 @@
                         </div>
                         <p class="basket-container__article">{{product?.article}}</p>
                         <div class="basket-container__count" >
-                        <p>В наличии <span>{{ product.remain.remains }} шт.</span></p>
+                        <p>В наличии <span>{{ product.remain.available }} шт.</span></p>
                         </div>
                         <div class="basket-container__price">
                         <Counter
                             @click="this.loading = true"
                             :min="0" 
-                            :max="product.remain.remains" 
-                            :multiplicity="product.multiplicity"
+                            :max="product.remain.available" 
+                            :multiplicity="Number(product.multiplicity)"
                             :initial="product.count"
                             :keyProduct="product.key"
                             @change="handleCountChange" 
