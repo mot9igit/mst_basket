@@ -32,6 +32,10 @@
         type: Number,
         default: 10
       },
+      multy: {
+        type: Number,
+        default: 1
+      },
       initial: {
         type: Number,
         default: 1
@@ -65,13 +69,22 @@
       },
       increment() {
         if (this.count < this.max) {
-          this.count++;
+          if(Number(this.multy) > 1){
+            this.count = this.count + Number(this.multy);
+          }else{
+            this.count++;
+          }
           this.handleChange(this.count);
         }
       },
       decrement() {
         if (this.count > this.min) {
-          this.count--;
+          if(Number(this.multy) > 1){
+            this.count = this.count - Number(this.multy);
+          }else{
+            this.count--;
+          }
+         
           this.handleChange(this.count);
         }
       }

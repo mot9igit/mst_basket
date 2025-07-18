@@ -9,11 +9,13 @@
             </div>
             </span>
             <div v-if="Object.keys(basket).length > 0" class="basket-container">
+              {{ console.log(basket) }}
             <template v-for="(org) in basket" :key="org.id">
                 <template v-for="(store) in org.data" :key="store.id">
                 <div class="basket-container__adres" style="background: #50C0E6">{{ org.org.name }}: {{ store.data.address_short }}</div>
                 <template v-for="(product, index) in store.products" :key="product.id">
                     <div class="basket-container__card product-item">
+                    
                     <a :href="product.uri" class="basket-container__img">
                         <img :src="'https://mst.tools' + product?.image" alt="Электростанция бензиновая синхронная (генератор) ИНТЕРСКОЛ ЭБ3500" title="Электростанция бензиновая синхронная (генератор) ИНТЕРСКОЛ ЭБ3500">
                     </a>
@@ -23,7 +25,7 @@
                         <div @click="deleteProduct(product.key)" class="btn-close link-no-style"></div>
                         </div>
                         <p class="basket-container__article">{{product?.article}}</p>
-                        <div class="basket-container__count">
+                        <div class="basket-container__count" >
                         <p>В наличии <span>{{ product.remain.remains }} шт.</span></p>
                         </div>
                         <div class="basket-container__price">
@@ -31,6 +33,7 @@
                             @click="this.loading = true"
                             :min="0" 
                             :max="product.remain.remains" 
+                            :multy="1"
                             :initial="product.count"
                             :keyProduct="product.key"
                             @change="handleCountChange" 
@@ -62,6 +65,7 @@
             <span class="dot-loader-none">
                 <span class="ms2_total_cost">{{ Number(cost).toLocaleString('ru') }}</span> ₽
             </span>
+            
             </button>
         </div>
         <div @click.stop class="d-col-basket loading" v-else>
@@ -135,8 +139,8 @@ export default {
     closeModal(){
         this.$emit("update:modal", false);
     },
-    handleCountChange(count, key) {
-      this.basket_api({ action: 'basket/change', key, count }).then((res) => {
+    handleCountChange(count, key, multy) {
+      this.basket_api({ action: 'basket/change', key, count, multy }).then((res) => {
         const form = document
         let event = new CustomEvent("cart/change", {
           detail: res.data.data

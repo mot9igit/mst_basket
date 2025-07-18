@@ -49,6 +49,7 @@
                       <Counter
                         :min="0"
                         :max="product.remain.remains"
+                        :multy="1"
                         :initial="product.count"
                         :keyProduct="product.key"
                         @change="handleCountChange"
@@ -482,12 +483,13 @@ export default {
       });
     },
 
-    handleCountChange(count, key) {
+    handleCountChange(count, key, multy) {
       this.loading = true;
       this.basket_api({
         action: "basket/change",
         key: key,
         count: count,
+        multy: multy,
       }).then((res) => {
         const form = document
         let event = new CustomEvent("cart/change", {

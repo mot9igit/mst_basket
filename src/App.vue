@@ -22,13 +22,14 @@
                 </div>
                 <p class="basket-container__article">{{product?.article}}</p>
                 <div class="basket-container__count">
-                  <p>В наличии <span>{{ product.remain.remains }} шт.</span></p>
+                  <p>В наличии <span>{{ product.remain.remains }} шт. {{ console.log(product.actions[0].active) }}</span></p>
                 </div>
                 <div class="basket-container__price">
                   <Counter
                     @click="this.loading = true"
                     :min="0" 
                     :max="product.remain.remains" 
+                    :multy="1"
                     :initial="product.count"
                     :keyProduct="product.key"
                     @change="handleCountChange" 
@@ -131,11 +132,12 @@
       openModal() {
         this.$globalState.basket_modal = true
       },
-      handleCountChange(count, key){
+      handleCountChange(count, key, multy){
         this.basket_api({
           action: 'basket/change',
           key: key,
-          count: count
+          count: count,
+          multy: multy,
         }).then((res) => {
           const form = document
           let event = new CustomEvent("cart/change", {
