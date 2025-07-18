@@ -22,14 +22,14 @@
                 </div>
                 <p class="basket-container__article">{{product?.article}}</p>
                 <div class="basket-container__count">
-                  <p>В наличии <span>{{ product.remain.remains }} шт. {{ console.log(product.actions[0].active) }}</span></p>
+                  <p>В наличии <span>{{ product.remain.remains }} шт. {{ product.multiplicity }}</span></p>
                 </div>
                 <div class="basket-container__price">
                   <Counter
                     @click="this.loading = true"
                     :min="0" 
                     :max="product.remain.remains" 
-                    :multy="1"
+                    :multy="product.multiplicity"
                     :initial="product.count"
                     :keyProduct="product.key"
                     @change="handleCountChange" 
