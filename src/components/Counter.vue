@@ -13,7 +13,7 @@
       <button 
         class="counter-btn counter-btn--plus" 
         @click="increment"
-        :disabled="count >= max-multiplicity"
+        :disabled="DisableInc"
       >
         +
       </button>
@@ -52,6 +52,25 @@
         lastValue: this.initial
       }
     },
+    computed: {
+    // a computed getter
+    DisableInc() {
+      if(this.multiplicity > 1){
+        if(this.count > this.max - this.multiplicity){
+          return true;
+        }else{
+          return false;
+        }
+      }else{
+        if(this.count >= this.max){
+          return true;
+        }else{
+          return false;
+        }
+      }
+      
+    }
+  },
     methods: {
       handleChange(newCount) {
         // Отменяем предыдущий таймаут, если он есть
