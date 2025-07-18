@@ -32,7 +32,7 @@
         type: Number,
         default: 10
       },
-      multy: {
+      multy: { 
         type: Number,
         default: 1
       },

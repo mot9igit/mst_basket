@@ -49,7 +49,7 @@ document.addEventListener('click', async (e) => {
     const orgId = parseInt(target.dataset.kenostOrg || 1)
     let count_multy = parseInt(1);
     if(count_multy<1){
-      count_multy = 1;
+      count_multy = 1; 
     }
 
     if (!storeId || !orgId) return null

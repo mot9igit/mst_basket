@@ -173,7 +173,7 @@
         }).finally(() => {this.loading = false})
       }
     },
-    watch: {
+    watch: { 
       cost(newVal) {
         const costElements = document.querySelectorAll('.kenost-basket-total-cost');
         if (costElements.length > 0) {
