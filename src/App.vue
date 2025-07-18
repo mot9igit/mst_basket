@@ -137,7 +137,7 @@
           action: 'basket/change',
           key: key,
           count: count,
-          multy: multy,
+          multy: multy
         }).then((res) => {
           const form = document
           let event = new CustomEvent("cart/change", {
